@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsables de Redes Sociales - REDIP Los Llanos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen">
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <p class="text-xs text-cyan-300 font-semibold">REDIP Los Llanos</p>
+                <h1 class="text-lg font-bold text-white">Responsables de redes sociales</h1>
+            </div>
+            <button id="backButton" type="button" class="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i> Volver al tablero
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 space-y-5">
+        <section class="border-b border-slate-700 pb-5">
+            <h2 class="text-base font-semibold text-white">Directorio por estado y unidad</h2>
+            <p id="rosterSummary" class="text-sm text-slate-400 mt-1" aria-live="polite">Cargando registros...</p>
+            <p class="text-xs text-slate-500 mt-3">DE: Delegación Estadal · DMIP: Delegación Municipal de Investigación Penal · DMC: Delegación Municipal de Criminalística</p>
+        </section>
+
+        <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3" aria-label="Filtros de responsables">
+            <div class="sm:col-span-2 xl:col-span-1">
+                <label for="rosterSearch" class="block text-xs font-medium text-slate-300 mb-1">Buscar</label>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input id="rosterSearch" type="search" placeholder="Nombre, cargo o teléfono" class="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
+                </div>
+            </div>
+            <div>
+                <label for="rosterState" class="block text-xs font-medium text-slate-300 mb-1">Estado</label>
+                <select id="rosterState" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+                    <option value="ALL">Todos los estados</option>
+                    <option value="APURE">Apure</option>
+                    <option value="BARINAS">Barinas</option>
+                    <option value="COJEDES">Cojedes</option>
+                    <option value="GUÁRICO">Guárico</option>
+                    <option value="PORTUGUESA">Portuguesa</option>
+                </select>
+            </div>
+            <div>
+                <label for="rosterUnit" class="block text-xs font-medium text-slate-300 mb-1">Unidad / despacho</label>
+                <select id="rosterUnit" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+                    <option value="ALL">Todas las unidades</option>
+                </select>
+            </div>
+        </section>
+
+        <section id="rosterResults" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3" aria-live="polite"></section>
+    </main>
+
+    <script>
+        const stateNames = {
+            APURE: 'Apure',
+            BARINAS: 'Barinas',
+            COJEDES: 'Cojedes',
+            'GUÁRICO': 'Guárico',
+            PORTUGUESA: 'Portuguesa'
+        };
+        let rosterRecords = [];
+
+        function cleanText(value) {
+            return String(value ?? '').trim();
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[character]);
+        }
+
+        function refreshUnitOptions() {
+            const state = document.getElementById('rosterState').value;
+            const unitSelect = document.getElementById('rosterUnit');
+            const previous = unitSelect.value;
+            const units = [...new Set(rosterRecords
+                .filter(record => state === 'ALL' || record.estado === state)
+                .map(record => cleanText(record.unidad))
+                .filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+            unitSelect.innerHTML = '<option value="ALL">Todas las unidades</option>' + units.map(unit => `<option value="${escapeHtml(unit)}">${escapeHtml(unit)}</option>`).join('');
+            unitSelect.value = units.includes(previous) ? previous : 'ALL';
+        }
+
+        function renderRoster() {
+            const state = document.getElementById('rosterState').value;
+            const unit = document.getElementById('rosterUnit').value;
+            const query = cleanText(document.getElementById('rosterSearch').value).toLocaleLowerCase('es');
+            const records = rosterRecords.filter(record => {
+                const searchable = [record.nombre, record.cargo, record.unidad, record.telefono, record.estado].join(' ').toLocaleLowerCase('es');
+                return (state === 'ALL' || record.estado === state)
+                    && (unit === 'ALL' || record.unidad === unit)
+                    && (!query || searchable.includes(query));
+            }).sort((a, b) => a.estado.localeCompare(b.estado, 'es')
+                || a.unidad.localeCompare(b.unidad, 'es')
+                || a.nombre.localeCompare(b.nombre, 'es'));
+
+            document.getElementById('rosterSummary').innerText = `${records.length} registros encontrados`;
+            const results = document.getElementById('rosterResults');
+            if (!records.length) {
+                results.innerHTML = '<p class="md:col-span-2 xl:col-span-3 py-8 text-center text-sm text-slate-400">No hay responsables para los filtros seleccionados.</p>';
+                return;
+            }
+
+            results.innerHTML = records.map(record => {
+                const phone = cleanText(record.telefono);
+                const phoneLink = phone.replace(/[^\d+]/g, '');
+                const accounts = Array.isArray(record.cuentasRedes) ? record.cuentasRedes : [];
+                return `
+                    <article class="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-xs text-cyan-300">${escapeHtml(stateNames[record.estado] || record.estado)} · ${escapeHtml(record.unidad || '—')}</p>
+                                <h3 class="text-base font-semibold text-white mt-1">${escapeHtml(record.nombre)}</h3>
+                                <p class="text-sm text-slate-300 mt-1">${escapeHtml(record.cargo || 'Cargo no especificado')}</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between gap-3 border-t border-slate-700 pt-3 text-sm">
+                            <span class="text-xs text-slate-400">Teléfono</span>
+                            ${phone ? `<a class="text-cyan-300 hover:text-cyan-200" href="tel:${escapeHtml(phoneLink)}">${escapeHtml(phone)}</a>` : '<span class="text-slate-400">—</span>'}
+                        </div>
+                        ${record.credencial ? `<div class="mt-2 flex items-center justify-between gap-3 text-xs"><span class="text-slate-400">Credencial</span><span class="text-slate-200">${escapeHtml(record.credencial)}</span></div>` : ''}
+                        ${accounts.length ? `
+                            <details class="mt-3 border-t border-slate-700 pt-3">
+                                <summary class="cursor-pointer text-xs font-medium text-slate-300">Cuentas de redes sociales (${accounts.length})</summary>
+                                <ul class="mt-2 space-y-1.5 text-xs">
+                                    ${accounts.map(account => `<li class="flex items-start justify-between gap-3"><span class="text-slate-400">${escapeHtml(account.categoria || 'Secundaria')} · ${escapeHtml(account.tipo)}</span><span class="text-cyan-300 text-right break-all">${escapeHtml(account.usuario)}</span></li>`).join('')}
+                                </ul>
+                            </details>
+                        ` : ''}
+                        ${record.otrasFunciones ? `<div class="mt-3 border-t border-slate-700 pt-3 text-xs"><span class="text-slate-500">Otras funciones</span><p class="text-slate-200 mt-1">${escapeHtml(record.otrasFunciones)}</p></div>` : ''}
+                    </article>
+                `;
+            }).join('');
+        }
+
+        async function loadRoster() {
+            try {
+                const savedRoster = localStorage.getItem('redipResponsables');
+                let records;
+                if (savedRoster !== null) {
+                    records = JSON.parse(savedRoster);
+                } else {
+                    const response = await fetch('./responsables-data.json');
+                    if (!response.ok) throw new Error('No se pudo cargar el directorio.');
+                    records = await response.json();
+                }
+                if (!Array.isArray(records)) throw new Error('El directorio tiene un formato inválido.');
+                rosterRecords = records;
+                refreshUnitOptions();
+                renderRoster();
+            } catch (error) {
+                console.error('No se pudo cargar el registro de responsables:', error);
+                document.getElementById('rosterSummary').innerText = 'No se pudo cargar el directorio.';
+                document.getElementById('rosterResults').innerHTML = '<p class="md:col-span-2 xl:col-span-3 py-8 text-center text-sm text-rose-300">Verifique que el archivo responsables-data.json esté disponible.</p>';
+            }
+        }
+
+        document.getElementById('rosterSearch').addEventListener('input', renderRoster);
+        document.getElementById('rosterState').addEventListener('change', () => { refreshUnitOptions(); renderRoster(); });
+        document.getElementById('rosterUnit').addEventListener('change', renderRoster);
+        window.addEventListener('storage', event => {
+            if (event.key !== 'redipResponsables' || event.newValue === null) return;
+            try {
+                const records = JSON.parse(event.newValue);
+                if (!Array.isArray(records)) return;
+                rosterRecords = records;
+                refreshUnitOptions();
+                renderRoster();
+            } catch (error) {
+                console.error('No se pudo actualizar el directorio:', error);
+            }
+        });
+        document.getElementById('backButton').addEventListener('click', () => {
+            if (window.history.length > 1) window.history.back();
+            else window.location.href = 'index.html';
+        });
+        loadRoster();
+    </script>
+</body>
+</html>
