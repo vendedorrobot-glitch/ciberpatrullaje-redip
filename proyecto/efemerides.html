@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Efemérides - REDIP Los Llanos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen">
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <p class="text-xs text-emerald-300 font-semibold">REDIP Los Llanos</p>
+                <h1 class="text-lg font-bold text-white">Efemérides</h1>
+            </div>
+            <button id="backButton" type="button" class="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i> Atrás
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 space-y-5">
+        <section class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 border-b border-slate-700 pb-4">
+            <div>
+                <p class="text-[10px] uppercase text-emerald-300 font-semibold">Consulta regional</p>
+                <h2 class="text-lg font-bold text-white mt-1">Efemérides por estado y mes</h2>
+                <p id="ephemerisResultsSummary" class="text-xs text-slate-400 mt-2" aria-live="polite">Cargando efemérides...</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:w-auto">
+                <div>
+                    <label for="ephemerisStateFilter" class="block text-xs text-slate-300 mb-1">Estado</label>
+                    <select id="ephemerisStateFilter" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <option value="ALL">Todos los estados</option>
+                        <option value="APURE">Apure</option>
+                        <option value="BARINAS">Barinas</option>
+                        <option value="COJEDES">Cojedes</option>
+                        <option value="GUÁRICO">Guárico</option>
+                        <option value="PORTUGUESA">Portuguesa</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="ephemerisMonthFilter" class="block text-xs text-slate-300 mb-1">Mes</label>
+                    <select id="ephemerisMonthFilter" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <option value="ALL">Todos los meses</option>
+                        <option value="1">Enero</option><option value="2">Febrero</option>
+                        <option value="3">Marzo</option><option value="4">Abril</option>
+                        <option value="5">Mayo</option><option value="6">Junio</option>
+                        <option value="7">Julio</option><option value="8">Agosto</option>
+                        <option value="9">Septiembre</option><option value="10">Octubre</option>
+                        <option value="11">Noviembre</option><option value="12">Diciembre</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section id="ephemerisResults" class="divide-y divide-slate-700" aria-live="polite"></section>
+    </main>
+
+    <script>
+        let efemeridesData = [];
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
+        async function loadEfemeridesData() {
+            const summary = document.getElementById('ephemerisResultsSummary');
+            summary.innerText = 'Cargando efemérides...';
+            try {
+                const response = await fetch('./efemerides-data.json');
+                if (!response.ok) throw new Error('No se pudo leer el catálogo de efemérides.');
+                const records = await response.json();
+                if (!Array.isArray(records)) throw new Error('El catálogo de efemérides tiene un formato inválido.');
+                efemeridesData = records;
+                renderEfemerides();
+            } catch (error) {
+                console.error('No se pudieron cargar las efemérides:', error);
+                summary.innerText = 'No se pudieron cargar las efemérides.';
+                document.getElementById('ephemerisResults').innerHTML = '<p class="py-5 text-sm text-rose-300">No se pudo cargar el catálogo de efemérides.</p>';
+            }
+        }
+
+        function renderEfemerides() {
+            const selectedState = document.getElementById('ephemerisStateFilter').value;
+            const selectedMonth = document.getElementById('ephemerisMonthFilter').value;
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            const records = efemeridesData
+                .filter(item => (selectedState === 'ALL' || item.estado === selectedState) && (selectedMonth === 'ALL' || item.mes === Number(selectedMonth)))
+                .sort((a, b) => a.mes - b.mes || a.dia - b.dia || a.nombre.localeCompare(b.nombre));
+            const results = document.getElementById('ephemerisResults');
+            document.getElementById('ephemerisResultsSummary').innerText = `${records.length} efemérides encontradas`;
+
+            if (!records.length) {
+                results.innerHTML = '<p class="py-5 text-sm text-slate-400">No hay efemérides registradas para los filtros seleccionados.</p>';
+                return;
+            }
+
+            results.innerHTML = records.map(item => `
+                <article class="grid grid-cols-[5rem_1fr] sm:grid-cols-[7rem_1fr] gap-3 py-4">
+                    <div class="text-sm font-semibold text-emerald-300">${escapeHtml(String(item.dia).padStart(2, '0'))} ${monthNames[item.mes - 1]}</div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-white">${escapeHtml(item.nombre)}</h3>
+                        <p class="text-sm text-slate-300 mt-1">${escapeHtml(item.descripcion)}</p>
+                        <p class="text-xs text-slate-400 mt-2">${escapeHtml(item.estado)} · ${escapeHtml(item.municipio)}</p>
+                        ${item.observacion ? `<p class="text-xs text-amber-300 mt-1">Observación: ${escapeHtml(item.observacion)}</p>` : ''}
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        document.getElementById('backButton').addEventListener('click', () => {
+            if (window.history.length > 1) window.history.back();
+            else window.location.href = 'index.html';
+        });
+        document.getElementById('ephemerisStateFilter').addEventListener('change', renderEfemerides);
+        document.getElementById('ephemerisMonthFilter').addEventListener('change', renderEfemerides);
+        loadEfemeridesData();
+    </script>
+</body>
+</html>

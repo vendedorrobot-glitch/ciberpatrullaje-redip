@@ -1,0 +1,543 @@
+[
+  {
+    "nombre": "HUGO DE LOS REYES CHAVEZ",
+    "descripcion": "Nace en la parroquia Sabaneta del estado Barinas, municipio Alberto Arvelo Torrealba, el maestro Hugo de Los Reyes Chávez, padre del Comandante Hugo Rafael Chávez Frias, quien fue gobernador del Estado en tres periodos (1998-2000), (2000-2004) y (2004-2008).",
+    "estado": "BARINAS",
+    "municipio": "Alberto Arvelo Torrealba",
+    "mes": 1,
+    "dia": 6,
+    "fuente": "EFEMERIDES ENERO 2026. BARINAS.xlsx"
+  },
+  {
+    "nombre": "MUERE DEL GENERAL EZEQUIEL ZAMORA, EN EL AÑO 1860",
+    "descripcion": "VÍCTIMA DE UN DISPARO TRAICIONERO",
+    "estado": "COJEDES",
+    "municipio": "EZEQUIEL ZAMORA",
+    "mes": 1,
+    "dia": 10,
+    "fuente": "Efemérides Mes de Enero.xlsx"
+  },
+  {
+    "nombre": "Fallecimiento del General Ezequiel Zamora",
+    "descripcion": "Ezequiel Zamora, el \"General del Pueblo Soberano\", fue asesinado por un disparo el 10 de enero de 1860 en San Carlos, Cojedes, Venezuela, mientras participaba en la Guerra Federal, en un evento rodeado de misterio y controversia, siendo una muerte por magnicidio que truncó su lucha contra la oligarquía, aunque las circunstancias exactas y el autor material siguen siendo objeto de debate histórico.",
+    "estado": "GUÁRICO",
+    "municipio": "Juan Germán Roscio",
+    "mes": 1,
+    "dia": 10,
+    "fuente": "Efemérides REDIP los Llanos (3).xlsx"
+  },
+  {
+    "nombre": "Día del Maestro.",
+    "descripcion": "celebra el Día del Maestro, recordando ese 15 de enero de 1932 cuando, durante la presidencia de Juan Vicente Gómez, educadores conformaron la Sociedad Venezolana de Maestros de Instrucción Primaria para defender los derechos laborales de los maestros y mejorar la educación en el país.",
+    "estado": "GUÁRICO",
+    "municipio": "Juan Germán Roscio",
+    "mes": 1,
+    "dia": 15,
+    "fuente": "Efemérides REDIP los Llanos (3).xlsx"
+  },
+  {
+    "nombre": "Fallecimiento de José Félix Ribas (1815).",
+    "descripcion": "El 31 de enero de 1815, tras haber sido capturado y sometido a numerosas vejaciones por parte de sus captores, fue fusilado en la Plaza Mayor de Tucupido, estado Guárico, José Félix Ribas, general en jefe del Ejército Libertador, héroe de nuestra independencia y uno de los más grandes patriotas de nuestra historia.",
+    "estado": "GUÁRICO",
+    "municipio": "José Félix Ribas",
+    "mes": 1,
+    "dia": 31,
+    "fuente": "Efemérides REDIP los Llanos (3).xlsx"
+  },
+  {
+    "nombre": "Catedral Metropolitana de Calabozo",
+    "descripcion": "es una catedral de estilo barroco ubicada en Calabozo, Venezuela. Es una hermosa muestra de lo que son las catedrales barrocas en Venezuela, la cual ha tenido diversas transformaciones a través de los tiempos.",
+    "estado": "GUÁRICO",
+    "municipio": "Francisco de Miranda",
+    "mes": 2,
+    "dia": 1,
+    "fuente": "Efemérides REDIP los Llanos (8).xlsx"
+  },
+  {
+    "nombre": "Día de la Candelaria",
+    "descripcion": "Fiestas Patronales en honor a la Virgen de la Candelaria",
+    "estado": "COJEDES",
+    "municipio": "Tinaquillo",
+    "mes": 2,
+    "dia": 2,
+    "fuente": "Efemérides REDIP los Llanos (Delegación Estadal Cojedes (1).xlsx"
+  },
+  {
+    "nombre": "Virgen de la Candelaria",
+    "descripcion": "es una advocación mariana de la religión católica que se representa con una vela encendida en su mano derecha y al niño Jesús en su brazo izquierdo.",
+    "estado": "GUÁRICO",
+    "municipio": "Leonardo Infante",
+    "mes": 2,
+    "dia": 2,
+    "fuente": "Efemérides REDIP los Llanos (8).xlsx"
+  },
+  {
+    "nombre": "VIRGEN DE COROMOTO",
+    "descripcion": "PEREGRINACIÓN DE LA VIRGEN DE COROMOTO",
+    "estado": "PORTUGUESA",
+    "municipio": "GUANARE",
+    "mes": 2,
+    "dia": 2,
+    "fuente": "EFEMÉRIDES MES DE FEBRERO1.xlsx"
+  },
+  {
+    "nombre": "Monumeto Natural Cerro de Platillon",
+    "descripcion": "es un monumento natural en Venezuela, ubicado en el estado Guárico. Es la montaña más alta de la Serranía del Interior y se caracteriza por su topografía abrupta, vegetación variada y fauna abundante",
+    "estado": "GUÁRICO",
+    "municipio": "Juan Germán Roscio Nieves",
+    "mes": 2,
+    "dia": 4,
+    "fuente": "Efemérides REDIP los Llanos (8).xlsx"
+  },
+  {
+    "nombre": "Nace Raimundo Ignacio Andueza Palacios",
+    "descripcion": "Nace en la provincia de Barinas, el que más tarde llegó a ser Presidente de Venezuela, destacado político, licenciado y doctor en derecho civil.",
+    "estado": "BARINAS",
+    "municipio": "Barinas",
+    "mes": 2,
+    "dia": 6,
+    "fuente": "Efemérides REDIP los Llanos - FEBRERO 2026.xlsx"
+  },
+  {
+    "nombre": "Fiestas Patronales de Uverito",
+    "descripcion": "son celebraciones que incluyen actos religiosos y profanos, como procesiones, bailes, conciertos, verbenas, ferias y juegos infantiles.",
+    "estado": "GUÁRICO",
+    "municipio": "Esteros de Camaguán",
+    "mes": 2,
+    "dia": 11,
+    "fuente": "Efemérides REDIP los Llanos (8).xlsx"
+  },
+  {
+    "nombre": "Batalla de Calabozo",
+    "descripcion": "fue un enfrentamiento crucial de la Guerra de Independencia de Venezuela donde el ejército libertador, comandado por los generales Manuel Piar y Manuel Cedeño, logró una importante victoria sobre las tropas realistas españolas, fortaleciendo la causa republicana en el oriente.",
+    "estado": "GUÁRICO",
+    "municipio": "Francisco de Miranda",
+    "mes": 2,
+    "dia": 12,
+    "fuente": "Efemérides REDIP los Llanos (2).xlsx",
+    "observacion": "La descripción varía entre planillas duplicadas; se muestra la versión más extensa."
+  },
+  {
+    "nombre": "La XXXIII Feria Agropecuaria de la Cuenca del Unare en Zaraza,",
+    "descripcion": "Esta feria es un referente importante para la producción agropecuaria en la zona oriental del estado Guárico y zonas limítrofes, reuniendo productores y comercializadores.",
+    "estado": "GUÁRICO",
+    "municipio": "José Félix Ribas",
+    "mes": 2,
+    "dia": 13,
+    "fuente": "Efemérides REDIP los Llanos (2).xlsx"
+  },
+  {
+    "nombre": "Batalla del Saman",
+    "descripcion": "fue un enfrentamiento entre los patriotas y los realistas que se libró el 18 de febrero de 1818. Este combate tuvo lugar en el paso El Samán, a orillas del río Guárico, en las cercanías de El Sombrero.",
+    "estado": "GUÁRICO",
+    "municipio": "Julian Mellado",
+    "mes": 2,
+    "dia": 18,
+    "fuente": "Efemérides REDIP los Llanos (8).xlsx"
+  },
+  {
+    "nombre": "Conmemoración del fallecimiento del ilustre maestro Don Simón Rodríguez",
+    "descripcion": "Simón Rodríguez fue un educador y mentor del Libertador Simón Bolívar. Falleció",
+    "estado": "GUÁRICO",
+    "municipio": "Julian Mellado",
+    "mes": 2,
+    "dia": 28,
+    "fuente": "Efemérides REDIP los Llanos (8).xlsx"
+  },
+  {
+    "nombre": "SOCIEDAD DE PROPIOS DE ACARIGUA",
+    "descripcion": "UNA INSTITUCIÓN HISTÓRICA QUE HA VELADO POR LOS EJIDOS Y EL DESARROLLO TERRITORIAL DE LA CUIDAD",
+    "estado": "PORTUGUESA",
+    "municipio": "PÁEZ",
+    "mes": 3,
+    "dia": 1,
+    "fuente": "EFEMÉRIDES MARZO.xlsx"
+  },
+  {
+    "nombre": "Nacimiento de José Carrillo Moreno, en el año 1922",
+    "descripcion": "Fue un político, historiador, periodista, abogado, cronista y poeta venezolano.",
+    "estado": "COJEDES",
+    "municipio": "Tinaco",
+    "mes": 3,
+    "dia": 4,
+    "fuente": "Efemérides REDIP los Llanos (Delegación Estadal Cojedes.xlsx"
+  },
+  {
+    "nombre": "7 de marzo de 1974 Creación del Parque Nacional Aguaro-Guariquito",
+    "descripcion": "mediante decreto, ubicado en el estado Guárico para proteger los ecosistemas de los llanos centrales.",
+    "estado": "GUÁRICO",
+    "municipio": "Francisco de Miranda",
+    "mes": 3,
+    "dia": 7,
+    "fuente": "Efemérides REDIP los Llanos (1).xlsx"
+  },
+  {
+    "nombre": "Fundación de Araure",
+    "descripcion": "Aniversario de la Fundación de Araure",
+    "estado": "PORTUGUESA",
+    "municipio": "Araure",
+    "mes": 3,
+    "dia": 9,
+    "fuente": "EFEMÉRIDES MES DE FEBRERO1.xlsx"
+  },
+  {
+    "nombre": "Natalicio de Francisco Lazo Martí",
+    "descripcion": "en Calabozo, estado Guárico. Médico y poeta, máximo exponente del nativismo criollo venezolano, autor de la \"Silva Criolla\".",
+    "estado": "GUÁRICO",
+    "municipio": "Francisco de Miranda",
+    "mes": 3,
+    "dia": 14,
+    "fuente": "Efemérides REDIP los Llanos (1).xlsx"
+  },
+  {
+    "nombre": "ZONA INDUSTRIAL DE ACARIGUA",
+    "descripcion": "MOTOR ECONÓMICO DE LA REGIÓN QUE COMENZO EN EL SIGLO XX",
+    "estado": "PORTUGUESA",
+    "municipio": "ARAURE",
+    "mes": 3,
+    "dia": 20,
+    "fuente": "EFEMÉRIDES MARZO.xlsx"
+  },
+  {
+    "nombre": "Nace Napoleon Sebastian Arteaga Pumar",
+    "descripcion": "Su actividad política estuvo impregnada de las ideas liberales, fue catalogado como uno de los ideólogos de la Revolución Federal y uno de los propulsores del Colegio Bolívar.",
+    "estado": "BARINAS",
+    "municipio": "Bolivar",
+    "mes": 3,
+    "dia": 22,
+    "fuente": "Efemérides REDIP los Llanos - MARZO - 2026.xlsx"
+  },
+  {
+    "nombre": "Dia de la Victoria de la Batalla de Araure",
+    "descripcion": "Día de la Victoria de la Batalla de Araure (Conmemoración local)",
+    "estado": "PORTUGUESA",
+    "municipio": "Araure",
+    "mes": 3,
+    "dia": 23,
+    "fuente": "EFEMÉRIDES MES DE FEBRERO1.xlsx"
+  },
+  {
+    "nombre": "CONMEMORACIÓN DE FIGURAS LOCALES DE LA EDUCACIÓN",
+    "descripcion": "PIRITU SE ENORGULLECE DE SUS HISTORIA DOCENTE",
+    "estado": "PORTUGUESA",
+    "municipio": "PIRITU",
+    "mes": 3,
+    "dia": 28,
+    "fuente": "EFEMÉRIDES MARZO.xlsx"
+  },
+  {
+    "nombre": "Día Nacional del Cuatro",
+    "descripcion": "Cada 4 de abril se ha celebrado el Día Nacional del Cuatro Venezolano, declarado Patrimonio Cultural de la Nación.",
+    "estado": "GUÁRICO",
+    "municipio": "Julián Mellado",
+    "mes": 4,
+    "dia": 4,
+    "fuente": "Efemérides REDIP los Llanos (7).xlsx"
+  },
+  {
+    "nombre": "La población pasó a llamarse Zaraza",
+    "descripcion": "El 5 de abril de 1853 la población pasó a llamarse Zaraza en homenaje al General Pedro Zaraza, prócer de la Independencia de Venezuela",
+    "estado": "GUÁRICO",
+    "municipio": "Pedro Zaraza",
+    "mes": 4,
+    "dia": 5,
+    "fuente": "Efemérides REDIP los Llanos (7).xlsx"
+  },
+  {
+    "nombre": "NAPOLEON SEBASTEAN ARTEAGA",
+    "descripcion": "Nace en Barinas en 1805. sus padres fueron Francisco de Paula Arteaga, funcionario de la Corona y doña Josefa Lucía del Pumar y Callejo, hija de don José Ignacio del Pumar, Marqués de las Riberas del Boconó y El Masparro y Vizconde del Pumar, por decreto de 08 de Abril 1864, la Asamblea Nacional Constituyente le otorga el titulo de FIEL SOLDADO DE LA DEMOCRACIA.",
+    "estado": "BARINAS",
+    "municipio": "Barinas",
+    "mes": 4,
+    "dia": 8,
+    "fuente": "EFEMERIDES ABRIL 2025. BARINAS.xlsx"
+  },
+  {
+    "nombre": "Batalla de San José de Tiznados",
+    "descripcion": "Un enfrentamiento importante en esta población del municipio Ortiz durante la Campaña del Centro. Las fuerzas patriotas, al mando del general José Antonio Páez, se enfrentaron a las tropas realistas de José Tomás Boves en un intento por avanzar hacia Caracas.",
+    "estado": "GUÁRICO",
+    "municipio": "Ortiz",
+    "mes": 4,
+    "dia": 11,
+    "fuente": "Efemérides REDIP los Llanos.xlsx"
+  },
+  {
+    "nombre": "PRIMERO AVANCES EN LA AGRICULTURA MODERNA.",
+    "descripcion": "INTRODUCCIÓN DE NUEVAS TECNOLOGÍAS EN LA SIEMBRA Y CULTIVOS EN 1910.",
+    "estado": "PORTUGUESA",
+    "municipio": "PÁEZ",
+    "mes": 4,
+    "dia": 15,
+    "fuente": "Efemérides de ABRIL.xlsx"
+  },
+  {
+    "nombre": "INICIO DE LA INDEPENDENCIA DE VENEZUELA",
+    "descripcion": "ACARIGUA Y LA REGIÓN PORTUGUESA ESTUVIERON ACTIVAMENTE INVOLUCRADAS",
+    "estado": "PORTUGUESA",
+    "municipio": "PÁEZ",
+    "mes": 4,
+    "dia": 19,
+    "fuente": "Efemérides de ABRIL.xlsx"
+  },
+  {
+    "nombre": "ANSELMO LOPEZ",
+    "descripcion": "En el caserío Chaparrito, en el municipio Pedro Felipe Sosa, del estado Barinas, el 21 de abril de 1934, nació un niño que bautizarían con el nombre de Anselmo, el mismo niño quien unos años más tarde sería reconocido internacionalmente como “el Rey de la Bandola”.",
+    "estado": "BARINAS",
+    "municipio": "Sosa",
+    "mes": 4,
+    "dia": 21,
+    "fuente": "EFEMERIDES ABRIL 2025. BARINAS.xlsx"
+  },
+  {
+    "nombre": "CELEBRACIÓN DEL DÍA DEL AGRICULTOR EN ACARIGUA",
+    "descripcion": "CELEBRANDO LA LABOR DE LOS TRABAJADORES DEL CAMPO EN LA REGIÓN",
+    "estado": "PORTUGUESA",
+    "municipio": "PÁEZ",
+    "mes": 4,
+    "dia": 22,
+    "fuente": "Efemérides de ABRIL.xlsx"
+  },
+  {
+    "nombre": "Dia Internacional del libro",
+    "descripcion": "El Día Internacional del Libro es una conmemoración celebrada cada 23 de abril a nivel mundial con el objetivo de fomentar la lectura.",
+    "estado": "GUÁRICO",
+    "municipio": "Julián Mellado",
+    "mes": 4,
+    "dia": 23,
+    "fuente": "Efemérides REDIP los Llanos (7).xlsx"
+  },
+  {
+    "nombre": "Fundación de la ciudad de Tinaquillo estado Cojedes.",
+    "descripcion": "Tinaquillo, municipio Tinaquillo, se fundo un 25 de abril de 1760, se toma esta como la fecha de su fundación. Cuenta con una población de 124.919 habitantes (año 2021)",
+    "estado": "COJEDES",
+    "municipio": "Tinaquillo",
+    "mes": 4,
+    "dia": 25,
+    "fuente": "Efemérides Abril (Delegación Estadal Cojedes).xlsx"
+  },
+  {
+    "nombre": "Natalicio de Marcos Pérez Jiménez",
+    "descripcion": "Marcos Evangelista Pérez Jiménez fue un político, militar y dictador​​ venezolano que ejerció como presidente de facto de Venezuela​ desde el 2 de diciembre de 1952 hasta el 23 de enero de 1958",
+    "estado": "GUÁRICO",
+    "municipio": "Francisco de Miranda",
+    "mes": 4,
+    "dia": 25,
+    "fuente": "Efemérides REDIP los Llanos (7).xlsx"
+  },
+  {
+    "nombre": "Natalicio del General de Brigada Manuel Manrique",
+    "descripcion": "Nacio en la ciudad de San Carlos en el año 1793, Ilustre prócer de la independencia suramericana, militar y heroe de la Batalla Naval del Lago de Maracaibo",
+    "estado": "COJEDES",
+    "municipio": "San Carlos",
+    "mes": 4,
+    "dia": 26,
+    "fuente": "Efemérides Abril (Delegación Estadal Cojedes).xlsx"
+  },
+  {
+    "nombre": "El 2 de mayo del año 1818, se conmemoran 205 años de la Batalla de Cojedes,",
+    "descripcion": "un combate de la Guerra de Independencia que enfrentó al ejército realista, comandado por Sebastián de la Calzada y a los patriotas, liderados por José Antonio Páez.",
+    "estado": "COJEDES",
+    "municipio": "San Carlos",
+    "mes": 5,
+    "dia": 2,
+    "fuente": "Efemérides  Mayo (Delegación Estadal Cojedes).xlsx"
+  },
+  {
+    "nombre": "INAUGURACION DEL HOSPITAL MATERNO INFANTIL \"Dr. SAMUEL DARIO MALDONADO\".",
+    "descripcion": "ESTA MODERNA INSTALACION MEDICA VIENE A SUPLIR LAS NECESIDADES DE UN SECTOR DE LA POBLACION BASTANTE DEPRIMINDO, DESCONGESTIONANDO EL HOSPITAL LUIS RAZETTI.",
+    "estado": "BARINAS",
+    "municipio": "BARINAS",
+    "mes": 5,
+    "dia": 9,
+    "fuente": "Efemérides REDIP los Llanos - MAYO.xlsx"
+  },
+  {
+    "nombre": "Festejan 223 años de San Pascual Bailón en Cojedes",
+    "descripcion": "El pueblo del municipio Ricaurte del estado Cojedes celebra con devoción y alegría cada 17 de mayo, el día de San Pascual Bailón, tradición que lleva 223 años en los corazones de los cojedeños",
+    "estado": "COJEDES",
+    "municipio": "Ricaurte",
+    "mes": 5,
+    "dia": 17,
+    "fuente": "Efemérides  Mayo (Delegación Estadal Cojedes).xlsx"
+  },
+  {
+    "nombre": "FUNDACIÓN DE ARAURE.",
+    "descripcion": "EN ARAURE, EL 6 DE JUNIO SE CELEBRA LA FUNDACIÓN DE LA CIUDAD Y SE REMEMORA LA BATALLA DE ARAURE, UN ENFRENTAMIENTO CRUCIAL DURANTE LA GUERRA DE INDEPENDENCIA.",
+    "estado": "PORTUGUESA",
+    "municipio": "ARAURE",
+    "mes": 6,
+    "dia": 6,
+    "fuente": "EFEMÉRIDES MES JUNIO.xlsx"
+  },
+  {
+    "nombre": "INAUGURACION DE LA CLINICA \" NUESTRA SEÑORA DEL PILAR. \"",
+    "descripcion": "SE FUNDA EN EL AÑO 1963 EL PRIMER CENTRO DE SALUD PRIVADO DE BARINAS, QUEDANDO REGISTRADO COMO GRUPO CORPORATIVO - CLINICA \" NUESTRA SEÑORA DEL PILAR. \"",
+    "estado": "BARINAS",
+    "municipio": "BARINAS",
+    "mes": 6,
+    "dia": 12,
+    "fuente": "Efemérides REDIP los Llanos - JUNIO.xlsx"
+  },
+  {
+    "nombre": "NATALICIO DE JOSE ANTONIO PÁEZ",
+    "descripcion": "EN PÁEZ, EL 13 DE JUNIO SE CONMEMORA EL NATALICIO DE JOSÉ ANTONIO PÁEZ, UN DESTACADO MILITAR Y POLÍTICO VENEZOLANO",
+    "estado": "PORTUGUESA",
+    "municipio": "PÁEZ",
+    "mes": 6,
+    "dia": 13,
+    "fuente": "EFEMÉRIDES MES JUNIO.xlsx"
+  },
+  {
+    "nombre": "CREACION DE LA UNIVERSIDAD NACINAL EXPERIMENTAL DE LOS LLANOS \"EZEQUIEL ZAMORA\".",
+    "descripcion": "EN EL AÑO 1974 EL EJECUTIVO NACIONAL REPRESENTADO POR EL Sr. CARLOS ANDRES PEREZ, PRESIDENTE CONSTITUCIONAL DE VENEZUELA, CONFORMA LA CREACION DE LA COMISION ORGANIZADORA DE LA UNELLEZ, PARA SU POSTERIOR CREACION.",
+    "estado": "BARINAS",
+    "municipio": "BARINAS",
+    "mes": 6,
+    "dia": 14,
+    "fuente": "Efemérides REDIP los Llanos - JUNIO.xlsx"
+  },
+  {
+    "nombre": "El Día del Apicultor",
+    "descripcion": "es un día para reconocer la labor de los apicultores y su importante contribución a la producción de miel y otros productos apícolas, así como a la polinización de cultivos y la conservación de la biodiversidad",
+    "estado": "GUÁRICO",
+    "municipio": "Municipio Francisco de Miranda",
+    "mes": 6,
+    "dia": 21,
+    "fuente": "Efemérides REDIP los Llanos (6).xlsx"
+  },
+  {
+    "nombre": "celebración de San Juan Bautista.",
+    "descripcion": "el 24 de junio, que incluye la famosa danza de los Diablos Danzantes de Tinaquillo y San Juan en San Carlos",
+    "estado": "COJEDES",
+    "municipio": "San Carlos",
+    "mes": 6,
+    "dia": 24,
+    "fuente": "Efemerides mes de Junio.xlsx"
+  },
+  {
+    "nombre": "24 de junio batalla de carabobo",
+    "descripcion": "el 24 de junio de 1821, es la fecha en que se libró la Batalla de Carabobo, un evento crucial en la historia de Venezuela y en el proceso de independencia hispanoamericana. En esta batalla, el ejército patriota, liderado por Simón Bolívar, se enfrentó al ejército realista español en las sabanas de Carabobo. La victoria patriota marcó un hito decisivo en la liberación de Caracas y la expulsión de los españoles del territorio venezolano",
+    "estado": "GUÁRICO",
+    "municipio": "Juan Germán Roscio",
+    "mes": 6,
+    "dia": 24,
+    "fuente": "Efemérides REDIP los Llanos (6).xlsx"
+  },
+  {
+    "nombre": "Nacimiento de San Juan Bautista",
+    "descripcion": "el 24 de junio, marca una fecha importante en el calendario religioso y cultural. Esta celebración conmemora el nacimiento de San Juan Bautista, precursor de Jesucristo, que según la tradición cristiana nació seis meses antes de él.",
+    "estado": "GUÁRICO",
+    "municipio": "Juan Germán Roscio",
+    "mes": 6,
+    "dia": 24,
+    "fuente": "Efemérides REDIP los Llanos (6).xlsx"
+  },
+  {
+    "nombre": "FUNDACIÓN DEL MUNICIPIO ARAURE.",
+    "descripcion": "FUE FUNDADA EL 6 DE JULIO DE 1694 PPR COLONIZADORES ESPAÑOLES.",
+    "estado": "PORTUGUESA",
+    "municipio": "ARAURE",
+    "mes": 7,
+    "dia": 6,
+    "fuente": "Efemérides de JULIO.xlsx"
+  },
+  {
+    "nombre": "Inauguracion de la sede VEN 911 en Barinas",
+    "descripcion": "Esta sede conto con mas de 100 camaras, para realizar un monitoreo constante en todo el municipio capital, de todas las actividades inherentes a la seguridad.",
+    "estado": "BARINAS",
+    "municipio": "Barinas",
+    "mes": 7,
+    "dia": 13,
+    "fuente": "Efemérides REDIP los Llanos - JULIO.xlsx"
+  },
+  {
+    "nombre": "Día de la Virgen del Carmen",
+    "descripcion": "En Venezuela, la celebración del Día de la Virgen del Carmen incluye procesiones, misas solemnes, y diversas actividades religiosas y populares. Es una fecha especial para los pescadores y marineros, quienes agradecen a la Virgen por su protección y piden por buenas capturas. Además, la Virgen del Carmen es considerada patrona de los conductores y taxistas, por lo que muchos también le rinden homenaje en este día",
+    "estado": "GUÁRICO",
+    "municipio": "José Tadeo Monagas",
+    "mes": 7,
+    "dia": 16,
+    "fuente": "Efemérides REDIP los Llanos (5).xlsx"
+  },
+  {
+    "nombre": "El 24 de julio se conmemora el natalicio de Simón Bolívar",
+    "descripcion": "Conocido como \"El Libertador\", lideró la independencia de varias naciones sudamericanas, incluyendo Bolivia, Colombia, Ecuador, Perú y Venezuela, del dominio español.",
+    "estado": "GUÁRICO",
+    "municipio": "Juan Germán Roscio",
+    "mes": 7,
+    "dia": 24,
+    "fuente": "Efemérides REDIP los Llanos (5).xlsx"
+  },
+  {
+    "nombre": "Nace Hugo Rafael Chavez Frias",
+    "descripcion": "Nace en Sabaneta de Barinas, el Tcnel. Hugo Chavez, hijo de Don Hugo de los Reyes Chavez y Doña Elena Frias, fue militar y Presidente de la Republica Bolivariana de Venezuela desde 1999 hasta 2013.",
+    "estado": "BARINAS",
+    "municipio": "Alberto Arvelo Torrealba",
+    "mes": 7,
+    "dia": 28,
+    "fuente": "Efemérides REDIP los Llanos - JULIO.xlsx"
+  },
+  {
+    "nombre": "Se libra la Batalla de Guanes",
+    "descripcion": "Enmarcada en la Guerra de Indepemdencia de Venezuela, se libra la Batalla de Taguanes el 31 de Julio de 1813, entre las fuerzas realistas y Republicanas, durante la Campaña Admirable del Libertador Simon Bolivar.",
+    "estado": "COJEDES",
+    "municipio": "Tinaquillo",
+    "mes": 7,
+    "dia": 31,
+    "fuente": "Efemerides mes de Julio.xlsx"
+  },
+  {
+    "nombre": "FUNDACIÓN DE ARAURE.Natalicio de Simón Díaz,",
+    "descripcion": "RECONOCIDO CANTAUTOR VENEZOLANO, CONOCIDO COMO \"EL TÍO SIMÓN\", TAMBIÉN CON GRAN ARRAIGO EN PORTUGUESA.",
+    "estado": "PORTUGUESA",
+    "municipio": "ARAURE",
+    "mes": 8,
+    "dia": 8,
+    "fuente": "EFEMÉRIDES AGOSTO.xlsx"
+  },
+  {
+    "nombre": "SE CONMEMORA A LA CIUDAD DE ACARIGUA COMO PUEBLO DE INDIO",
+    "descripcion": "SW CONMEMORA LA FECHA DE ESTABLECIMIENTO DE ACARIGUA COMO PUEBLO DE INDIOS. ES UNA FECHA DE GRAN IMPORTANCIA HISTÓRICA PARA LA CIUDAD.",
+    "estado": "PORTUGUESA",
+    "municipio": "PAEZ",
+    "mes": 9,
+    "dia": 6,
+    "fuente": "EFEMÉRIDES MES DE SEPTIEMBRE.xlsx"
+  },
+  {
+    "nombre": "ORQUÍDEAS COROMOTANAS",
+    "descripcion": "SE REALIZA UNA CONMEMORACIÓN EN LA IGLESIA SAN RAFAEL DE ARCANGEL DE PAEZ, ESTADO PORTUGUESA.",
+    "estado": "PORTUGUESA",
+    "municipio": "PÁEZ",
+    "mes": 10,
+    "dia": 10,
+    "fuente": "EFEMÉRIDES OCTUBRE.xlsx"
+  },
+  {
+    "nombre": "VIRGEN DEL PILAR EN ZARAGOZA DE ARAURE",
+    "descripcion": "SE RECIBE LA IMAGEN DE LA VIRGEN DEL PILAR EN ZARAGOZA DE ARAURE, QUE COLINDA CON ACARIGUA, ESTADO PORTUGUESA",
+    "estado": "PORTUGUESA",
+    "municipio": "ARAURE",
+    "mes": 10,
+    "dia": 12,
+    "fuente": "EFEMÉRIDES OCTUBRE.xlsx"
+  },
+  {
+    "nombre": "FIESTAS PATRONALES EN HONOR A DAN RAFAEL DE ARCANGEL",
+    "descripcion": "CELEBRACIÓN DE PAEZ Y ARAURE, YA QUE AMBOS MUNICIPIOS SON CIUDADES HERMANAS. INCLUYE PROCESIÓN, ACTIVIDADES CULTURALES Y DEPORTIVAS.",
+    "estado": "PORTUGUESA",
+    "municipio": "PÁEZ",
+    "mes": 10,
+    "dia": 24,
+    "fuente": "EFEMÉRIDES OCTUBRE.xlsx"
+  },
+  {
+    "nombre": "BATALLA DE ARAURE",
+    "descripcion": "SE REALIZA LA CREACIÓN DE LA ORDEN DE LA BATALLA DE ARAURE",
+    "estado": "PORTUGUESA",
+    "municipio": "ARAURE",
+    "mes": 11,
+    "dia": 28,
+    "fuente": "efemérides NOVIEMBRE.xlsx"
+  }
+]
