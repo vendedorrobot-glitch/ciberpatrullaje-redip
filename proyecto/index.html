@@ -15,8 +15,9 @@
     <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-shield-halved text-xl"></i>
+                <div class="relative flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-500/30 overflow-hidden shrink-0">
+                    <img id="headerLogoImg" src="logo.png" alt="Logo REDIP Los Llanos" class="w-full h-full object-contain p-1" onerror="this.classList.add('hidden'); document.getElementById('headerLogoFallback').classList.remove('hidden');">
+                    <i id="headerLogoFallback" class="fa-solid fa-shield-halved text-xl hidden"></i>
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">REDIP Los Llanos</h1>
@@ -62,7 +63,7 @@
                 <h3 class="text-base font-bold text-white"><i class="fa-solid fa-shield-halved text-blue-400 mr-2"></i> Acceso Panel Master</h3>
                 <button onclick="closeMasterLogin()" class="text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <p class="text-xs text-slate-400">Ingrese la contraseña de administrador para desbloquear la carga de archivos Excel oficiales.</p>
+            <p class="text-xs text-slate-400">Ingrese la contraseña de administrador para desbloquear la carga y edición de datos oficiales.</p>
             <input type="password" id="masterPasswordInput" placeholder="Contraseña..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
             <button onclick="verifyMasterPassword()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-2 rounded-lg transition cursor-pointer">Desbloquear</button>
         </div>
@@ -71,7 +72,7 @@
     <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <p id="dashboardDataStatus" class="text-xs text-slate-400" role="status" aria-live="polite">Cargando datos del archivo oficial de ciberpatrullaje...</p>
         <p id="liveSyncStatus" class="text-xs text-slate-500" role="status" aria-live="polite"></p>
-        <p id="dbCloudSyncStatus" class="text-xs text-cyan-400" role="status" aria-live="polite"></p>
+        <p id="dbSyncStatus" class="text-xs text-cyan-400" role="status" aria-live="polite"></p>
 
         <div id="masterPanelContainer" class="hidden bg-slate-800 border-2 border-blue-500/60 rounded-xl p-5 shadow-lg space-y-4">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -85,14 +86,13 @@
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer" onchange="handleOfficialExcelUpload(event)">
                 </div>
                 <div id="masterSyncStatus" class="text-xs text-emerald-400 font-medium">
-                    <i class="fa-solid fa-circle-check mr-1"></i> Sesión Master activa. Suba su archivo Excel para sincronizar en tiempo real.
+                    <i class="fa-solid fa-circle-check mr-1"></i> Sesión Master activa. Suba su archivo Excel o sincronice con Google Sheets.
                 </div>
             </div>
 
             <div class="grid grid-cols-1 gap-4 bg-slate-900 p-4 rounded-xl border border-slate-700/50">
                 <div class="space-y-3">
-                    <h4 class="text-sm font-bold text-white">Sincronización por Excel o Google Sheet</h4>
-                    <p class="text-[11px] text-slate-400">La importación reemplaza las cifras de cada mes encontradas en el archivo. El Excel oficial contiene varias fechas y se separa automáticamente por mes y estado, conservando las marcas por unidad.</p>
+                    <h4 class="text-sm font-bold text-white">1. Enlace de Ciberpatrullaje (Se mantiene igual)</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                         <div>
                             <label class="block text-slate-300 mb-1">Mes activo</label>
@@ -107,17 +107,35 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <label class="block text-slate-300 text-xs">1. URL pública CSV de Google Sheet (Respuestas Ciberpatrullaje - Se mantiene igual)</label>
-                        <input id="googleSheetUrlInput" type="url" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-blue-500">
-                    </div>
-                    <div class="space-y-2 pt-2 border-t border-slate-800">
-                        <label class="block text-cyan-300 text-xs font-semibold">2. URL del Script de Google (Para sincronizar y guardar Operativos, Prevención y Responsables)</label>
-                        <input id="googleScriptApiUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-800 border border-cyan-700/60 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-cyan-400">
-                        <p class="text-[11px] text-slate-400">Pega aquí tu enlace terminado en <code>/exec</code> o déjalo fijo en la constante <code>GOOGLE_SCRIPT_API_URL</code> del código (línea 394).</p>
+                        <label class="block text-slate-300 text-xs">URL de Google Sheet (Ciberpatrullaje)</label>
+                        <input id="googleSheetUrlInput" type="url" placeholder="https://docs.google.com/spreadsheets/d/..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-blue-500">
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="syncGoogleSheet()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">Sincronizar Google Sheet y Base de Datos</button>
+                        <button onclick="syncGoogleSheet()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">Sincronizar Ciberpatrullaje</button>
                         <button onclick="stopGoogleSheetSync()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">Detener polling</button>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-800 pt-4 space-y-3">
+                    <h4 class="text-sm font-bold text-cyan-300"><i class="fa-solid fa-database mr-1.5"></i> 2. Enlace Adicional para Operativos, Prevención y Responsables</h4>
+                    <p class="text-[11px] text-slate-400">Pega aquí el enlace normal de tu segundo Google Sheet (o pestaña con <code>gid=...</code>) para leer en vivo, o una URL de Web App / Base de datos para guardar y editar desde la web automáticamente.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-300 text-xs mb-1">Enlace Google Sheet de Supervisión Semanal (Prevención / Operativos)</label>
+                            <input id="secondarySupervisionUrlInput" type="url" placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 text-xs mb-1">Enlace Google Sheet de Responsables</label>
+                            <input id="secondaryResponsablesUrlInput" type="url" placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-cyan-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 text-xs mb-1">URL de Guardado Automático (Web App / API opcional para escribir desde la web)</label>
+                        <input id="cloudWriteApiUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="saveAndSyncSecondaryLinks()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer"><i class="fa-solid fa-rotate mr-1"></i> Guardar enlaces y sincronizar ahora</button>
+                        <button type="button" onclick="exportDatabaseToExcel()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer"><i class="fa-solid fa-file-excel mr-1"></i> Descargar Excel de Operativos/Prevención y Responsables</button>
                     </div>
                 </div>
             </div>
@@ -212,7 +230,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700 pb-3">
                     <div>
                         <h4 class="text-sm font-bold text-white"><i class="fa-solid fa-users-gear text-cyan-300 mr-2"></i> Responsables de redes sociales</h4>
-                        <p class="text-xs text-slate-400 mt-1">Se sincroniza automáticamente con Google Sheets cuando el enlace del Script está activo.</p>
+                        <p class="text-xs text-slate-400 mt-1">Se sincroniza con tu hoja de Responsables y se puede editar aquí directamente.</p>
                         <label class="inline-block mt-2 text-xs text-cyan-300 hover:text-cyan-200 underline cursor-pointer">Cargar Excel de responsables (horario y/o redes sociales)
                             <input type="file" id="masterRosterExcelInput" accept=".xlsx,.xls" multiple class="hidden" onchange="loadRosterFromExcel(event)">
                         </label>
@@ -306,104 +324,4 @@
 
         <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm space-y-6">
             <h3 class="text-base font-bold text-white border-b border-slate-700 pb-3">
-                <i class="fa-solid fa-calendar-week text-emerald-400 mr-2"></i> Reportes de Supervisión: Prevención vs Operativos
-            </h3>
-
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                <label for="supervisionDateFilter" class="text-xs font-medium text-slate-300">Fecha de supervisión</label>
-                <select id="supervisionDateFilter" class="w-full sm:w-auto min-w-48 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500">
-                    <option value="ALL">Todos los días del mes</option>
-                </select>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
-                    <h4 class="text-sm font-bold text-emerald-400 mb-3"><i class="fa-solid fa-shield-heart mr-1.5"></i> Prevención Integral (Lun - Vie)</h4>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-800 text-slate-400">
-                                <tr id="prevencionTableHeader">
-                                    <th class="p-2">Día</th>
-                                    <th class="p-2">Apure</th>
-                                    <th class="p-2">Barinas</th>
-                                    <th class="p-2">Cojedes</th>
-                                    <th class="p-2">Guárico</th>
-                                    <th class="p-2">Portuguesa</th>
-                                </tr>
-                            </thead>
-                            <tbody id="prevencionTableBody" class="divide-y divide-slate-800 text-slate-300"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
-                    <h4 class="text-sm font-bold text-blue-400 mb-3"><i class="fa-solid fa-user-shield mr-1.5"></i> Operativos de Seguridad (Fin de Semana)</h4>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-800 text-slate-400">
-                                <tr id="operativosTableHeader">
-                                    <th class="p-2">Día</th>
-                                    <th class="p-2">Apure</th>
-                                    <th class="p-2">Barinas</th>
-                                    <th class="p-2">Cojedes</th>
-                                    <th class="p-2">Guárico</th>
-                                    <th class="p-2">Portuguesa</th>
-                                </tr>
-                            </thead>
-                            <tbody id="operativosTableBody" class="divide-y divide-slate-800 text-slate-300"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
-                    <h5 class="text-xs font-bold text-slate-200 mb-3">Prevención Integral por Estado</h5>
-                    <div class="relative h-52 w-full"><canvas id="prevencionChart"></canvas></div>
-                </div>
-                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
-                    <h5 class="text-xs font-bold text-slate-200 mb-3">Operativos de Seguridad por Estado</h5>
-                    <div class="relative h-52 w-full"><canvas id="operativosChart"></canvas></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-gradient-to-r from-slate-800 to-slate-800/80 border-l-4 border-blue-500 p-4 rounded-xl shadow-sm">
-            <h4 class="text-sm font-semibold text-white">Diagnóstico Estratégico General</h4>
-            <p id="strategicDiag" class="text-sm text-slate-300 mt-1 leading-relaxed">Cargando diagnóstico...</p>
-        </div>
-
-        <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm space-y-4">
-            <h3 class="text-base font-bold text-white"><i class="fa-solid fa-map-location-dot text-blue-400 mr-2"></i> Diagnóstico Operativo por Estado</h3>
-            <div id="stateDiagnosticsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-        </div>
-
-        <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm">
-            <h3 class="text-base font-bold text-white mb-3"><i class="fa-solid fa-calendar-xmark text-rose-400 mr-2"></i> Supervisión Registrada y Fechas Críticas</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-900 text-slate-400 border-b border-slate-700">
-                        <tr>
-                            <th class="p-3">Estado Supervisor</th>
-                            <th class="p-3">Con Supervisión</th>
-                            <th class="p-3">Sin Supervisión</th>
-                            <th class="p-3">Fechas Sin Supervisión</th>
-                        </tr>
-                    </thead>
-                    <tbody id="daysWithoutPartTable" class="divide-y divide-slate-700 text-slate-300"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 lg:col-span-2 shadow-sm">
-                <h3 class="text-base font-bold text-white mb-4">Rendimiento por Estado (% de Excelencia)</h3>
-                <div class="relative h-64 w-full"><canvas id="stateChart"></canvas></div>
-            </div>
-            <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm flex flex-col justify-center items-center">
-                <h3 class="text-base font-bold text-white mb-4">Distribución de Incidencias</h3>
-                <div class="relative h-64 w-full"><canvas id="categoryChart"></canvas></div>
-            </div>
-        </div>
-
-        <div class="bg-slate-800 border border-slate-700/6
+                <i class="fa-solid fa-
