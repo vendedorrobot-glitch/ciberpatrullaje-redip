@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Control de Ciberpatrullaje redes sociales- REDIP Los Llanos</title>
+    <link rel="icon" type="image/png" href="IMG_7178.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -15,8 +16,8 @@
     <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-shield-halved text-xl"></i>
+                <div class="bg-white px-2.5 py-1.5 rounded-xl shadow-lg shadow-blue-500/20 flex items-center justify-center">
+                    <img src="IMG_7178.png" alt="Logo REDIP Los Llanos" class="h-9 w-auto object-contain">
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">REDIP Los Llanos</h1>
@@ -62,7 +63,7 @@
                 <h3 class="text-base font-bold text-white"><i class="fa-solid fa-shield-halved text-blue-400 mr-2"></i> Acceso Panel Master</h3>
                 <button onclick="closeMasterLogin()" class="text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <p class="text-xs text-slate-400">Ingrese la contraseña de administrador para desbloquear la carga y edición sincronizada con Google Sheets.</p>
+            <p class="text-xs text-slate-400">Ingrese la contraseña de administrador para desbloquear la carga de archivos Excel oficiales.</p>
             <input type="password" id="masterPasswordInput" placeholder="Contraseña..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
             <button onclick="verifyMasterPassword()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-2 rounded-lg transition cursor-pointer">Desbloquear</button>
         </div>
@@ -84,7 +85,7 @@
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer" onchange="handleOfficialExcelUpload(event)">
                 </div>
                 <div id="masterSyncStatus" class="text-xs text-emerald-400 font-medium">
-                    <i class="fa-solid fa-circle-check mr-1"></i> Sesión Master activa. Todo cambio se sincroniza con Google Sheets.
+                    <i class="fa-solid fa-circle-check mr-1"></i> Sesión Master activa. Suba su archivo Excel para sincronizar en tiempo real.
                 </div>
             </div>
 
@@ -106,11 +107,12 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <label class="block text-slate-300 text-xs">URL de Google Sheet conectada</label>
+                        <label class="block text-slate-300 text-xs">URL pública CSV de Google Sheet</label>
                         <input id="googleSheetUrlInput" type="url" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-blue-500">
+                        <p class="text-[11px] text-slate-500">En Google Sheets: Archivo → Compartir → Publicar en la web → elige la hoja de respuestas y el formato CSV, y pega aquí ese enlace. Google puede tardar unos minutos en reflejar los cambios en el enlace publicado. Para que todos los usuarios vean datos en vivo, pega el mismo enlace en la constante GOOGLE_SHEET_CSV_URL del código.</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="syncGoogleSheet()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">Sincronizar Google Sheet Ahora</button>
+                        <button onclick="syncGoogleSheet()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">Sincronizar Google Sheet</button>
                         <button onclick="stopGoogleSheetSync()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">Detener polling</button>
                     </div>
                 </div>
@@ -118,7 +120,7 @@
 
             <div class="bg-slate-900 border border-slate-700/50 rounded-xl p-4 space-y-4">
                 <div class="flex items-center justify-between gap-3 border-b border-slate-700 pb-3">
-                    <h4 class="text-sm font-bold text-white"><i class="fa-solid fa-clipboard-list text-emerald-400 mr-2"></i> Registro Semanal de Supervisión (Sincronizado con Google Sheets)</h4>
+                    <h4 class="text-sm font-bold text-white"><i class="fa-solid fa-clipboard-list text-emerald-400 mr-2"></i> Registro Semanal de Supervisión</h4>
                     <span class="text-[10px] uppercase tracking-[0.2em] text-slate-400">Prevención / Operativos</span>
                 </div>
 
@@ -170,3 +172,290 @@
                         <label class="block text-xs font-medium text-slate-300 mb-1">Portuguesa</label>
                         <input id="weeklyPortuguesaInput" type="number" min="0" value="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
                     </div>
+
+                    <div class="lg:col-span-2 flex flex-wrap gap-3 pt-2">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition cursor-pointer">Guardar datos semanales</button>
+                        <button type="button" onclick="resetWeeklySupervisorForm()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold px-4 py-2 rounded-lg transition cursor-pointer">Limpiar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-700/50 rounded-xl p-4 space-y-4">
+                <div class="flex items-center justify-between gap-3 border-b border-slate-700 pb-3">
+                    <h4 class="text-sm font-bold text-white"><i class="fa-solid fa-list-ul text-blue-400 mr-2"></i> Registros semanales guardados</h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-800 text-slate-400">
+                            <tr>
+                                <th class="p-2">Tipo</th>
+                                <th class="p-2">Fecha</th>
+                                <th class="p-2">Día</th>
+                                <th class="p-2">Apure</th>
+                                <th class="p-2">Barinas</th>
+                                <th class="p-2">Cojedes</th>
+                                <th class="p-2">Guárico</th>
+                                <th class="p-2">Portuguesa</th>
+                                <th class="p-2">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="weeklySavedRecordsBody" class="divide-y divide-slate-800 text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <section class="bg-slate-900 border border-cyan-800/60 rounded-xl p-4 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700 pb-3">
+                    <div>
+                        <h4 class="text-sm font-bold text-white"><i class="fa-solid fa-users-gear text-cyan-300 mr-2"></i> Responsables de redes sociales</h4>
+                        <p class="text-xs text-slate-400 mt-1">Esta lista se sincroniza con Google Sheets y también permite importar desde Excel.</p>
+                        <label class="inline-block mt-2 text-xs text-cyan-300 hover:text-cyan-200 underline cursor-pointer">Cargar Excel de responsables (horario y/o redes sociales)
+                            <input type="file" id="masterRosterExcelInput" accept=".xlsx,.xls" multiple class="hidden" onchange="loadRosterFromExcel(event)">
+                        </label>
+                    </div>
+                    <p id="masterRosterStatus" class="text-xs text-slate-400" aria-live="polite">Cargando responsables...</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-[1fr_2fr_auto] gap-3 items-end">
+                    <div>
+                        <label for="masterRosterStateFilter" class="block text-xs text-slate-300 mb-1">Filtrar por estado</label>
+                        <select id="masterRosterStateFilter" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                            <option value="ALL">Todos los estados</option><option value="APURE">Apure</option><option value="BARINAS">Barinas</option><option value="COJEDES">Cojedes</option><option value="GUÁRICO">Guárico</option><option value="PORTUGUESA">Portuguesa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="masterRosterRecordSelect" class="block text-xs text-slate-300 mb-1">Registro</label>
+                        <select id="masterRosterRecordSelect" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"></select>
+                    </div>
+                    <button id="masterRosterNewButton" type="button" class="bg-cyan-700 hover:bg-cyan-600 text-white text-xs font-semibold px-3 py-2 rounded-lg"><i class="fa-solid fa-plus mr-1"></i> Nuevo</button>
+                </div>
+                <form id="masterRosterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div><label for="masterRosterState" class="block text-xs text-slate-300 mb-1">Estado</label><select id="masterRosterState" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"><option value="APURE">Apure</option><option value="BARINAS">Barinas</option><option value="COJEDES">Cojedes</option><option value="GUÁRICO">Guárico</option><option value="PORTUGUESA">Portuguesa</option></select></div>
+                    <div><label for="masterRosterUnit" class="block text-xs text-slate-300 mb-1">Unidad / despacho</label><input id="masterRosterUnit" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"></div>
+                    <div><label for="masterRosterRole" class="block text-xs text-slate-300 mb-1">Cargo</label><select id="masterRosterRole" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"><option value="">Seleccionar cargo...</option></select></div>
+                    <div><label for="masterRosterName" class="block text-xs text-slate-300 mb-1">Nombre y apellido</label><input id="masterRosterName" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"></div>
+                    <div><label for="masterRosterCredential" class="block text-xs text-slate-300 mb-1">Credencial</label><input id="masterRosterCredential" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"></div>
+                    <div><label for="masterRosterMonth" class="block text-xs text-slate-300 mb-1">Mes del horario</label><input id="masterRosterMonth" required placeholder="Marzo" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"></div>
+                    <div><label for="masterRosterYear" class="block text-xs text-slate-300 mb-1">Año</label><input id="masterRosterYear" type="number" min="2000" max="2100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"></div>
+                    <div><label for="masterRosterPhone" class="block text-xs text-slate-300 mb-1">Teléfono</label><input id="masterRosterPhone" type="tel" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"></div>
+                    <div class="sm:col-span-2 lg:col-span-3"><label for="masterRosterOtherFunctions" class="block text-xs text-slate-300 mb-1">Otras funciones</label><input id="masterRosterOtherFunctions" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"></div>
+                    <div class="sm:col-span-2 lg:col-span-3 flex flex-wrap gap-2">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg"><i class="fa-solid fa-floppy-disk mr-1"></i> Guardar responsable</button>
+                        <button id="masterRosterDeleteButton" type="button" class="hidden bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold px-4 py-2 rounded-lg"><i class="fa-solid fa-trash mr-1"></i> Eliminar</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Marcas Excelentes</p>
+                <h3 id="kpiExcelente" class="text-2xl font-bold text-emerald-400 mt-1">0</h3>
+                <p id="kpiExcelenteSub" class="text-xs text-slate-400 mt-2">Peso: 0% del total</p>
+            </div>
+            <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Destiempo / Faltante</p>
+                <h3 id="kpiDestiempo" class="text-2xl font-bold text-amber-400 mt-1">0</h3>
+                <p class="text-xs text-slate-400 mt-2">Registros fuera de tiempo</p>
+            </div>
+            <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">&gt; 24h Sin Publicar</p>
+                <h3 id="kpiRetraso" class="text-2xl font-bold text-rose-400 mt-1">0</h3>
+                <p class="text-xs text-slate-400 mt-2">Retrasos críticos</p>
+            </div>
+            <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Problemas Técnicos</p>
+                <h3 id="kpiTecnicos" class="text-2xl font-bold text-purple-400 mt-1">0</h3>
+                <p class="text-xs text-slate-400 mt-2">Fallas de infraestructura</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-slate-700 pb-3 mb-4">
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.22em] text-blue-300/80">Reporte mensual</p>
+                    <h3 class="text-base font-bold text-white mt-1">REDIP Los Llanos - Oficina de Comunicaciones y Relaciones Interinstitucionales</h3>
+                </div>
+                <span class="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/30"><i class="fa-solid fa-chart-column"></i> Este es el reporte mensual del REDIP</span>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-5 items-center">
+                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
+                    <div class="relative h-64 w-full"><canvas id="monthlyReportChart"></canvas></div>
+                </div>
+                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4 space-y-3">
+                    <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Resumen general</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-between text-slate-300"><span>Marcas excelentes</span><span id="reportExcellent" class="font-bold text-emerald-400">0</span></div>
+                        <div class="flex items-center justify-between text-slate-300"><span>Fuera de tiempo</span><span id="reportDestiempo" class="font-bold text-amber-400">0</span></div>
+                        <div class="flex items-center justify-between text-slate-300"><span>Retrasos</span><span id="reportRetraso" class="font-bold text-rose-400">0</span></div>
+                        <div class="flex items-center justify-between text-slate-300"><span>Técnicos</span><span id="reportTecnicos" class="font-bold text-purple-400">0</span></div>
+                        <div class="flex items-center justify-between text-slate-300 border-t border-slate-700 pt-2"><span>Días transcurridos / días del mes</span><span id="reportMonthProgress" class="font-bold text-cyan-300">0/0</span></div>
+                        <div class="flex items-center justify-between text-slate-300"><span>Días restantes</span><span id="reportDaysRemaining" class="font-bold text-amber-300">0</span></div>
+                        <div class="flex items-center justify-between text-slate-300 border-t border-slate-700 pt-2"><span id="reportMonitoredLabel">Días monitorizados al corte</span><span id="reportMonitoredDays" class="font-bold text-blue-300">0/30</span></div>
+                        <div class="flex items-center justify-between text-slate-300"><span>Cobertura al corte</span><span id="reportCoveragePct" class="font-bold text-cyan-300">0%</span></div>
+                    </div>
+                    <div class="border-t border-slate-700 pt-3">
+                        <p id="reportMonthlyNote" class="text-xs text-slate-400 leading-relaxed">Cargando información mensual...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm space-y-6">
+            <h3 class="text-base font-bold text-white border-b border-slate-700 pb-3">
+                <i class="fa-solid fa-calendar-week text-emerald-400 mr-2"></i> Reportes de Supervisión: Prevención vs Operativos
+            </h3>
+
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                <label for="supervisionDateFilter" class="text-xs font-medium text-slate-300">Fecha de supervisión</label>
+                <select id="supervisionDateFilter" class="w-full sm:w-auto min-w-48 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+                    <option value="ALL">Todos los días del mes</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
+                    <h4 class="text-sm font-bold text-emerald-400 mb-3"><i class="fa-solid fa-shield-heart mr-1.5"></i> Prevención Integral (Lun - Vie)</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-800 text-slate-400">
+                                <tr id="prevencionTableHeader">
+                                    <th class="p-2">Día</th>
+                                    <th class="p-2">Apure</th>
+                                    <th class="p-2">Barinas</th>
+                                    <th class="p-2">Cojedes</th>
+                                    <th class="p-2">Guárico</th>
+                                    <th class="p-2">Portuguesa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prevencionTableBody" class="divide-y divide-slate-800 text-slate-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
+                    <h4 class="text-sm font-bold text-blue-400 mb-3"><i class="fa-solid fa-user-shield mr-1.5"></i> Operativos de Seguridad (Fin de Semana)</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-800 text-slate-400">
+                                <tr id="operativosTableHeader">
+                                    <th class="p-2">Día</th>
+                                    <th class="p-2">Apure</th>
+                                    <th class="p-2">Barinas</th>
+                                    <th class="p-2">Cojedes</th>
+                                    <th class="p-2">Guárico</th>
+                                    <th class="p-2">Portuguesa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="operativosTableBody" class="divide-y divide-slate-800 text-slate-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
+                    <h5 class="text-xs font-bold text-slate-200 mb-3">Prevención Integral por Estado</h5>
+                    <div class="relative h-52 w-full"><canvas id="prevencionChart"></canvas></div>
+                </div>
+                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
+                    <h5 class="text-xs font-bold text-slate-200 mb-3">Operativos de Seguridad por Estado</h5>
+                    <div class="relative h-52 w-full"><canvas id="operativosChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-slate-800 to-slate-800/80 border-l-4 border-blue-500 p-4 rounded-xl shadow-sm">
+            <h4 class="text-sm font-semibold text-white">Diagnóstico Estratégico General</h4>
+            <p id="strategicDiag" class="text-sm text-slate-300 mt-1 leading-relaxed">Cargando diagnóstico...</p>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm space-y-4">
+            <h3 class="text-base font-bold text-white"><i class="fa-solid fa-map-location-dot text-blue-400 mr-2"></i> Diagnóstico Operativo por Estado</h3>
+            <div id="stateDiagnosticsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+            <h3 class="text-base font-bold text-white mb-3"><i class="fa-solid fa-calendar-xmark text-rose-400 mr-2"></i> Supervisión Registrada y Fechas Críticas</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-900 text-slate-400 border-b border-slate-700">
+                        <tr>
+                            <th class="p-3">Estado Supervisor</th>
+                            <th class="p-3">Con Supervisión</th>
+                            <th class="p-3">Sin Supervisión</th>
+                            <th class="p-3">Fechas Sin Supervisión</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daysWithoutPartTable" class="divide-y divide-slate-700 text-slate-300"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 lg:col-span-2 shadow-sm">
+                <h3 class="text-base font-bold text-white mb-4">Rendimiento por Estado (% de Excelencia)</h3>
+                <div class="relative h-64 w-full"><canvas id="stateChart"></canvas></div>
+            </div>
+            <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm flex flex-col justify-center items-center">
+                <h3 class="text-base font-bold text-white mb-4">Distribución de Incidencias</h3>
+                <div class="relative h-64 w-full"><canvas id="categoryChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+            <h3 class="text-base font-bold text-white mb-4"><i class="fa-solid fa-list-check text-blue-400 mr-2"></i> Unidades del Estado Seleccionado</h3>
+            <p class="text-xs text-slate-400 mb-4">DE: Delegación Estadal · DMIP: Delegación Municipal de Investigación Penal · DMC: Delegación Municipal de Criminalística</p>
+            <div id="detailedUnitsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2"></div>
+        </div>
+
+        <div id="unitDetailModal" class="hidden fixed inset-0 z-[60] bg-slate-950/80 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="unitDetailTitle">
+            <div class="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl" onclick="event.stopPropagation()">
+                <div class="flex items-start justify-between gap-4 p-5 border-b border-slate-700">
+                    <div>
+                        <p id="unitDetailContext" class="text-xs text-blue-300"></p>
+                        <h3 id="unitDetailTitle" class="text-lg font-bold text-white mt-1">Detalle de unidad</h3>
+                    </div>
+                    <button id="closeUnitDetailButton" type="button" aria-label="Cerrar detalle" title="Cerrar" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="p-5 space-y-5">
+                    <div id="unitDetailMetrics" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                    <div class="border-l-2 border-blue-400 bg-slate-800/70 px-4 py-3">
+                        <p class="text-[10px] uppercase text-blue-300 font-semibold mb-1">Diagnóstico de la unidad</p>
+                        <p id="unitDetailDiagnosis" class="text-sm leading-relaxed text-slate-200"></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-5 items-center">
+                        <div class="space-y-2 text-sm text-slate-300">
+                            <p>Con supervisión: <strong id="unitDetailSupervisedDays" class="text-white">—</strong></p>
+                            <p>Sin supervisión: <strong id="unitDetailUnsupervisedDays" class="text-rose-300">—</strong></p>
+                            <p>Fechas sin supervisión: <strong id="unitDetailMissingDates" class="text-slate-200">—</strong></p>
+                        </div>
+                        <div class="relative h-56 w-full"><canvas id="unitDetailChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const dbReports = {
+            "2026-10": {
+                resumen: { excelente: 324, destiempo: 27, retraso: 0, tecnicos: 0, total: 351 },
+                diag: "En el avance de octubre se registran 351 marcas con 92.3% de excelencia. Guárico consolida su liderazgo, mientras Barinas y Portuguesa presentan colapso operativo en el registro de supervisión.",
+                estados: {
+                    APURE: { excelente: 59, destiempo: 18, retraso: 0, tecnicos: 0, total: 77, pct: 76.6, conParte: 11, sinParte: 5, fechasSin: "06, 08, 10, 11, 16", diagText: "Retrocedió a 59 marcas excelentes. 18 destiempos, requiere atención en DMIP Achaguas y Guasdualito.", badge: "Inestable", badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/30", unidadesList: [{ nombre: "DE APURE", tipo: "DE", exc: 11, dest: 0, ret: 0, tec: 0, tot: 11, pct: 100 }, { nombre: "DMIP ACHAGUAS", tipo: "DMIP", exc: 5, dest: 6, ret: 0, tec: 0, tot: 11, pct: 45.5 }, { nombre: "DMC GUASDUALITO", tipo: "DMC", exc: 4, dest: 3, ret: 0, tec: 0, tot: 7, pct: 57.1 }] },
+                    BARINAS: { excelente: 32, destiempo: 4, retraso: 0, tecnicos: 0, total: 36, pct: 88.9, conParte: 4, sinParte: 12, fechasSin: "01 al 04, 07, 09, 10, 12 al 16", diagText: "Estado crítico con apenas 4 de 16 días reportados. Las unidades DMC concentran fallas sistémicas.", badge: "Alerta Crítica", badgeColor: "bg-rose-500/10 text-rose-400 border-rose-500/30", unidadesList: [{ nombre: "DE BARINAS", tipo: "DE", exc: 4, dest: 0, ret: 0, tec: 0, tot: 4, pct: 100 }, { nombre: "DMIP BARINAS", tipo: "DMIP", exc: 4, dest: 0, ret: 0, tec: 0, tot: 4, pct: 100 }, { nombre: "DMC BARINAS", tipo: "DMC", exc: 3, dest: 2, ret: 0, tec: 0, tot: 5, pct: 60 }] },
+                    COJEDES: { excelente: 65, destiempo: 4, retraso: 0, tecnicos: 0, total: 69, pct: 94.2, conParte: 14, sinParte: 2, fechasSin: "06, 16", diagText: "Desempeño sólido con 65 marcas excelentes y cobertura en 14 de 16 días.", badge: "Estable", badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30", unidadesList: [{ nombre: "DE COJEDES", tipo: "DE", exc: 14, dest: 0, ret: 0, tec: 0, tot: 14, pct: 100 }, { nombre: "DMIP SAN CARLOS", tipo: "DMIP", exc: 13, dest: 1, ret: 0, tec: 0, tot: 14, pct: 92.9 }, { nombre: "DMC COJEDES", tipo: "DMC", exc: 12, dest: 1, ret: 0, tec: 0, tot: 13, pct: 92.3 }] },
+                    GUÁRICO: { excelente: 164, destiempo: 1, retraso: 0, tecnicos: 0, total: 165, pct: 99.4, conParte: 11, sinParte: 5, fechasSin: "04, 09, 11, 12, 16", diagText: "Líder regional indiscutible con 164 marcas excelentes y solo 1 destiempo.", badge: "Líder", badgeColor: "bg-blue-500/10 text-blue-400 border-blue-500/30", unidadesList: [{ nombre: "DE GUÁRICO", tipo: "DE", exc: 11, dest: 0, ret: 0, tec: 0, tot: 11, pct: 100 }, { nombre: "DMIP ALTAGRACIA", tipo: "DMIP", exc: 11, dest: 0, ret: 0, tec: 0, tot: 11, pct: 100 }, { nombre: "DMC GUARICO", tipo: "DMC", exc: 10, dest: 0, ret: 0, tec: 0, tot: 10, pct: 100 }] },
+                    PORTUGUESA: { excelente: 4, destiempo: 0, retraso: 0, tecnicos: 0, total: 4, pct: 100, conParte: 1, sinParte: 15, fechasSin: "02 al 16", diagText: "Prácticamente fuera de servicio: un solo día reportado en 16 monitoreados.", badge: "Inoperativo", badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/30", unidadesList: [{ nombre: "DE PORTUGUESA", tipo: "DE", exc: 1, dest: 0, ret: 0, tec: 0, tot: 1, pct: 100 }, { nombre: "DMIP ACARIGUA", tipo: "DMIP", exc: 1, dest: 0, ret: 0, tec: 0, tot: 1, pct: 100 }, { nombre: "DMC PORTUGUESA", tipo: "DMC", exc: 1, dest: 0, ret: 0, tec: 0, tot: 1, pct: 100 }] }
+                },
+                unidades: [{ tipo: "DE", count: 5, excelente: 41, fuera: 0, pct: 100 }, { tipo: "DMIP", count: 18, excelente: 140, fuera: 16, pct: 89.7 }, { tipo: "DMC", count: 17, excelente: 143, fuera: 11, pct: 92.9 }]
+            },
+            "2026-01": {
+                resumen: { excelente: 120, destiempo: 14, retraso: 0, tecnicos: 0, total: 134 },
+                diag: "Reporte base del mes de enero con indicadores preliminares cargados para comparación histórica.",
+                estados: {
+                    APURE: { excelente: 20, destiempo: 4, retraso: 0, tecnicos: 0, total: 24, pct: 83.3, conParte: 7, sinParte: 3, fechasSin: "04, 11, 19", diagText: "Nivel aceptable con riesgo de caídas puntuales.", badge: "Estable", badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30", unidadesList: [{ nombre: "DE APURE", tipo: "DE", exc: 7, dest: 0, ret: 0, tec: 0, tot: 7, pct: 100 }, { nombre: "DMIP ACHAGUAS", tipo: "DMIP", exc: 4, dest: 2, ret: 0, tec: 0, tot: 6, pct: 66.7 }, { nombre: "DMC GUASDUALITO", tipo: "DMC", exc: 2, dest: 1, ret: 0, tec: 0, tot: 3, pct: 66.7 }] },
+                    BARINAS: { excelente: 18, destiempo: 3, retraso: 0, tecnicos: 0, total: 21, pct: 85.7, conParte: 5, sinParte: 4, fechasSin: "02, 06, 09, 16", diagText: "Indicadores medianamente estables pero con tareas pendientes.", badge: "Inestable", badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/30", unidadesList: [{ nombre: "DE BARINAS", tipo: "DE", exc: 4, dest: 0, ret: 0, tec: 0, tot: 4, pct: 100 }, { nombre: "DMIP BARINAS", tipo: "DMIP", exc: 4, dest: 1, ret: 0, tec: 0, tot: 5, pct: 80 }, { nombre: "DMC BARINAS", tipo: "DMC", exc: 2, dest: 1, ret: 0, tec: 0, tot: 3, pct: 66.7 }] },
+                    COJEDES: { excelente: 32, destiempo: 2, retraso: 0, tecnicos: 0, total: 34, pct: 94.1, conParte: 10, sinParte: 2, fechasSin: "05, 12", diagText: "Buen desempeño general y cobertura casi completa.", badge: "Estable", badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30", unidadesList: [{ nombre: "DE COJEDES", tipo: "DE", exc: 9, dest: 0, ret: 0, tec: 0, tot: 9, pct: 100 }, { nombre: "DMIP SAN CARLOS", tipo: "DMIP", exc: 8, dest: 1, ret: 0, tec: 0, tot: 9, pct: 88.9 }, { nombre: "DMC COJEDES", tipo: "DMC", exc: 7, dest: 0, ret: 0, tec: 0, tot: 7, pct: 100 }] },
+                    GUÁRICO: { excelente: 40, destiempo: 1, retraso: 0, tecnicos: 0, total: 41, pct: 97.6, conParte: 13, sinParte: 2, fechasSin: "08, 17", diagText: "Muy alto nivel de cumplimiento en la región.", badge: "Líder", badgeColor: "bg-blue-500/10 text-blue-400 border-blue-500/30
