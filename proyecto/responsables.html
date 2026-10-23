@@ -24,6 +24,7 @@
         <section class="border-b border-slate-700 pb-5">
             <h2 class="text-base font-semibold text-white">Directorio por estado y unidad</h2>
             <p id="rosterSummary" class="text-sm text-slate-400 mt-1" aria-live="polite">Cargando registros...</p>
+            <p id="rosterSync" class="text-xs text-slate-500 mt-1" aria-live="polite"></p>
             <p class="text-xs text-slate-500 mt-3">DE: Delegación Estadal · DMIP: Delegación Municipal de Investigación Penal · DMC: Delegación Municipal de Criminalística</p>
         </section>
 
@@ -66,6 +67,213 @@
             PORTUGUESA: 'Portuguesa'
         };
         let rosterRecords = [];
+
+        // Enlace de la pestaña "Directorio" del Google Sheet (se lee igual que el tablero principal, sin clave).
+        // El Panel Master puede sustituirlo en su navegador.
+        const ROSTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1RBuqhcwDK0Tosff0n5OWdnHM0zRMjoWl2S6emMMqnRE/gviz/tq?tqx=out:csv&headers=1&sheet=Directorio";
+        const ROSTER_REFRESH_MS = 60000;
+
+        function getRosterSheetUrl() {
+            try { return localStorage.getItem('redipRosterSheetUrl') || ROSTER_SHEET_URL; } catch (error) { return ROSTER_SHEET_URL; }
+        }
+
+        function parseCsvText(csvText) {
+            const rows = [];
+            let currentRow = [];
+            let currentValue = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const next = csvText[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && next === '"') {
+                        currentValue += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    currentRow.push(currentValue);
+                    currentValue = '';
+                } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                    if (char === '\r' && next === '\n') i++;
+                    currentRow.push(currentValue);
+                    if (currentRow.some(cell => String(cell).trim() !== '')) {
+                        rows.push(currentRow);
+                    }
+                    currentRow = [];
+                    currentValue = '';
+                } else {
+                    currentValue += char;
+                }
+            }
+
+            if (currentValue.length > 0 || currentRow.length > 0) {
+                currentRow.push(currentValue);
+                if (currentRow.some(cell => String(cell).trim() !== '')) rows.push(currentRow);
+            }
+
+            return rows;
+        }
+
+        function normalizeSheetUrl(input) {
+            const raw = String(input || '').trim();
+            if (!raw) return '';
+            let url;
+            try { url = new URL(raw); } catch (error) { return ''; }
+            if (url.protocol !== 'https:' || !/(^|\.)google\.com$|(^|\.)googleusercontent\.com$/.test(url.hostname)) return '';
+            const alreadyCsv = /output=csv|format=csv|tqx=out:csv/i.test(url.search + url.hash);
+            const match = url.pathname.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && !alreadyCsv && !/\/d\/e\//.test(url.pathname)) {
+                const gid = (raw.match(/[#&?]gid=(\d+)/) || [])[1] || '0';
+                return `https://docs.google.com/spreadsheets/d/${match[1]}/gviz/tq?tqx=out:csv&headers=1&gid=${gid}`;
+            }
+            return url.toString();
+        }
+
+        function sheetKey(text) {
+            return String(text == null ? '' : text).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function keyedRow(raw) {
+            const row = {};
+            Object.keys(raw).forEach(key => { row[sheetKey(key)] = raw[key]; });
+            return row;
+        }
+
+        function pickField(row, names) {
+            for (const name of names) {
+                if (row[name] !== undefined && String(row[name]).trim() !== '') return row[name];
+            }
+            return '';
+        }
+
+        function csvToObjects(text) {
+            const table = parseCsvText(text);
+            if (!table.length) return [];
+            const headers = table[0].map(value => String(value).trim());
+            return table.slice(1).map(row => {
+                const object = {};
+                headers.forEach((header, index) => { if (header) object[header] = row[index] == null ? '' : row[index]; });
+                return object;
+            });
+        }
+
+        async function fetchCsvText(url) {
+            const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`Google respondió ${response.status}; verifica que la hoja esté compartida como "Cualquier persona con el enlace"`);
+            const text = await response.text();
+            if (/^\s*<(!doctype|html)/i.test(text)) throw new Error('la hoja no es pública (Google pidió iniciar sesión)');
+            return text;
+        }
+
+        function rosterKey(text) {
+            return String(text == null ? '' : text).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        }
+
+        function rosterClean(value) {
+            return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+        }
+
+        function rosterState(value) {
+            const key = rosterKey(value);
+            if (key.includes('APURE')) return 'APURE';
+            if (key.includes('BARINAS')) return 'BARINAS';
+            if (key.includes('COJEDES')) return 'COJEDES';
+            if (key.includes('GUARICO')) return 'GUÁRICO';
+            if (key.includes('PORTUGUESA')) return 'PORTUGUESA';
+            return '';
+        }
+
+        function cloudHash(text) {
+            let a = 5381, b = 0;
+            for (let i = 0; i < text.length; i++) {
+                a = ((a << 5) + a + text.charCodeAt(i)) | 0;
+                b = (text.charCodeAt(i) + (b << 6) + (b << 16) - b) | 0;
+            }
+            return (a >>> 0).toString(36).padStart(6, '0') + (b >>> 0).toString(36).padStart(6, '0');
+        }
+
+        function rosterIdFor(record) {
+            return 'R' + cloudHash(`${record.estado}|${rosterKey(record.nombre)}`);
+        }
+
+        function parseAccountsText(text) {
+            const raw = String(text || '').trim();
+            if (!raw) return [];
+            if (raw.charAt(0) === '[') {
+                try {
+                    const list = JSON.parse(raw);
+                    if (Array.isArray(list)) {
+                        return list.filter(item => item && item.usuario).map(item => ({
+                            categoria: item.categoria || 'Secundaria', tipo: item.tipo || 'Tipo no especificado', usuario: String(item.usuario)
+                        }));
+                    }
+                } catch (error) { /* se trata como texto libre */ }
+            }
+            return raw.split(/\s*\|\s*|\r?\n/).map(part => part.trim()).filter(Boolean).map(part => {
+                const match = part.match(/^(?:(.*?)\s*·\s*)?([^:]+?)\s*:\s*(.+)$/);
+                if (!match) return { categoria: 'Secundaria', tipo: 'Tipo no especificado', usuario: part };
+                return { categoria: (match[1] || 'Secundaria').trim(), tipo: match[2].trim(), usuario: match[3].trim() };
+            });
+        }
+
+        function rosterFromSheetRows(rawRows) {
+            const unique = new Map();
+            let skipped = 0;
+            rawRows.forEach(raw => {
+                const row = keyedRow(raw);
+                const estado = rosterState(row.estado);
+                const nombre = rosterClean(`${row.nombre || ''} ${row.apellido || ''}`);
+                if (!estado || !nombre) { skipped += 1; return; }
+                let phone = rosterClean(row.telefono);
+                if (/^4\d{9}$/.test(phone)) phone = '0' + phone; // Google Sheets suele quitar el 0 inicial
+                const year = Number(pickField(row, ['anio', 'ano']));
+                const stamp = rosterClean(pickField(row, ['updatedat', 'actualizado']));
+                const record = {
+                    estado,
+                    unidad: rosterClean(pickField(row, ['unidad', 'despacho'])),
+                    cargo: rosterClean(pickField(row, ['cargo', 'puesto'])),
+                    nombre,
+                    credencial: rosterClean(row.credencial),
+                    diasLibres: rosterClean(row.diaslibres),
+                    diasLaborables: rosterClean(row.diaslaborables),
+                    mes: rosterClean(row.mes),
+                    anio: Number.isFinite(year) && year > 0 ? year : null,
+                    telefono: phone,
+                    otrasFunciones: rosterClean(row.otrasfunciones),
+                    cuentasRedes: parseAccountsText(pickField(row, ['cuentasderedes', 'cuentasredes', 'cuentas'])),
+                    fuente: rosterClean(row.fuente) || 'Google Sheet',
+                    updatedAt: /^\d{4}-\d{2}-\d{2}T/.test(stamp) ? stamp : ''
+                };
+                const idText = rosterClean(row.id);
+                record.id = /^[A-Za-z0-9_-]{4,64}$/.test(idText) ? idText : rosterIdFor(record);
+                unique.set(record.id, record);
+            });
+            return { records: Array.from(unique.values()), skipped };
+        }
+
+        // Une la hoja con lo guardado en este navegador (Panel Master): la edición más reciente gana y lo que solo existe aquí se conserva.
+        function mergeRoster(serverRecords, localRecords) {
+            let known = new Set();
+            try { known = new Set(JSON.parse(localStorage.getItem('redipRosterKnownIds') || '[]')); } catch (error) { /* sin historial */ }
+            const tail = value => { const digits = String(value || '').replace(/\D/g, ''); return digits.length >= 7 ? digits.slice(-7) : ''; };
+            const localById = new Map(localRecords.map(record => { const id = record.id || rosterIdFor(record); return [id, { ...record, id }]; }));
+            const serverIds = new Set(serverRecords.map(record => record.id));
+            const serverPhones = new Set(serverRecords.filter(record => tail(record.telefono)).map(record => `${record.estado}|${tail(record.telefono)}`));
+            const result = serverRecords.map(server => {
+                const mine = localById.get(server.id);
+                return mine && String(mine.updatedAt || '') > String(server.updatedAt || '') ? mine : server;
+            });
+            localById.forEach((record, id) => {
+                if (serverIds.has(id)) return;
+                if (tail(record.telefono) && serverPhones.has(`${record.estado}|${tail(record.telefono)}`)) return;
+                if (!known.has(id)) result.push(record);
+            });
+            return result;
+        }
 
         function cleanText(value) {
             return String(value ?? '').trim();
@@ -141,48 +349,75 @@
             }).join('');
         }
 
-        async function loadRoster() {
-            try {
-                const savedRoster = localStorage.getItem('redipResponsables');
-                let records;
-                if (savedRoster !== null) {
-                    records = JSON.parse(savedRoster);
-                } else {
-                    const response = await fetch('./responsables-data.json');
-                    if (!response.ok) throw new Error('No se pudo cargar el directorio.');
-                    records = await response.json();
+        async function loadRoster(initial) {
+            let sheetRecords = null;
+            let problem = '';
+            const url = normalizeSheetUrl(getRosterSheetUrl());
+            if (url) {
+                try {
+                    const rawRows = csvToObjects(await fetchCsvText(url));
+                    const parsed = rosterFromSheetRows(rawRows);
+                    if (rawRows.length && !parsed.records.length) throw new Error('no se reconocieron filas (la pestaña necesita las columnas Estado, Unidad, Cargo, Nombre, Teléfono…)');
+                    sheetRecords = parsed.records;
+                } catch (error) {
+                    console.error('No se pudo leer la hoja de responsables:', error);
+                    problem = error && error.name === 'TypeError'
+                        ? 'no se pudo leer la hoja (sin internet o no está compartida como "Cualquier persona con el enlace")'
+                        : (error && error.message) || 'error desconocido';
                 }
-                if (!Array.isArray(records)) throw new Error('El directorio tiene un formato inválido.');
-                rosterRecords = records;
+            }
+
+            let localRecords = null;
+            try {
+                const saved = localStorage.getItem('redipResponsables');
+                if (saved !== null) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) localRecords = parsed;
+                }
+            } catch (error) { /* lista local ilegible */ }
+
+            let records = null;
+            if (sheetRecords) records = localRecords ? mergeRoster(sheetRecords, localRecords) : sheetRecords;
+            else if (localRecords) records = localRecords;
+            else if (!url) {
+                try {
+                    const response = await fetch('./responsables-data.json');
+                    if (response.ok) {
+                        const json = await response.json();
+                        if (Array.isArray(json)) records = json;
+                    }
+                } catch (error) { /* sin archivo local */ }
+            }
+
+            if (!records) {
+                document.getElementById('rosterSummary').innerText = 'No se pudo cargar el directorio.';
+                document.getElementById('rosterResults').innerHTML = `<p class="md:col-span-2 xl:col-span-3 py-8 text-center text-sm text-rose-300">${escapeHtml(problem || 'Aún no hay un enlace de Google Sheet configurado para los responsables.')} Verifica que la hoja esté compartida como "Cualquier persona con el enlace".</p>`;
+                return;
+            }
+
+            const changed = JSON.stringify(records) !== JSON.stringify(rosterRecords);
+            rosterRecords = records;
+            if (changed || initial) {
                 refreshUnitOptions();
                 renderRoster();
-            } catch (error) {
-                console.error('No se pudo cargar el registro de responsables:', error);
-                document.getElementById('rosterSummary').innerText = 'No se pudo cargar el directorio.';
-                document.getElementById('rosterResults').innerHTML = '<p class="md:col-span-2 xl:col-span-3 py-8 text-center text-sm text-rose-300">Verifique que el archivo responsables-data.json esté disponible.</p>';
             }
+            document.getElementById('rosterSync').textContent = sheetRecords
+                ? `Sincronizado con Google Sheets · ${new Date().toLocaleTimeString('es-VE')}`
+                : (problem ? `No se pudo actualizar desde Google Sheets: ${problem}. Se muestra la última lista disponible.` : '');
         }
 
         document.getElementById('rosterSearch').addEventListener('input', renderRoster);
         document.getElementById('rosterState').addEventListener('change', () => { refreshUnitOptions(); renderRoster(); });
         document.getElementById('rosterUnit').addEventListener('change', renderRoster);
         window.addEventListener('storage', event => {
-            if (event.key !== 'redipResponsables' || event.newValue === null) return;
-            try {
-                const records = JSON.parse(event.newValue);
-                if (!Array.isArray(records)) return;
-                rosterRecords = records;
-                refreshUnitOptions();
-                renderRoster();
-            } catch (error) {
-                console.error('No se pudo actualizar el directorio:', error);
-            }
+            if (event.key === 'redipResponsables') loadRoster(false);
         });
         document.getElementById('backButton').addEventListener('click', () => {
             if (window.history.length > 1) window.history.back();
             else window.location.href = 'index.html';
         });
-        loadRoster();
+        loadRoster(true);
+        setInterval(() => { if (!document.hidden) loadRoster(false); }, ROSTER_REFRESH_MS);
     </script>
 </body>
 </html>
