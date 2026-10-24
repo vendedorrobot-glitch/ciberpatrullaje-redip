@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+            <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -553,8 +553,8 @@
         const ROSTER_KNOWN_KEY = 'redipRosterKnownIds';
         // Google Sheets de Semanal y Responsables (se leen por enlace, igual que el principal; sin clave).
         // Valores por defecto para TODOS los usuarios; el Panel Master puede sustituirlos en su navegador.
-        const WEEKLY_SHEET_URL = "https://docs.google.com/spreadsheets/d/1RBuqhcwDK0Tosff0n5OWdnHM0zRMjoWl2S6emMMqnRE/gviz/tq?tqx=out:csv&headers=1&sheet=Semanal";
-        const ROSTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1RBuqhcwDK0Tosff0n5OWdnHM0zRMjoWl2S6emMMqnRE/gviz/tq?tqx=out:csv&headers=1&sheet=Directorio";
+        const WEEKLY_SHEET_URL = "https://docs.google.com/spreadsheets/d/1B5HYIvtkOzD_bCeXsRL3EFRNr-jCwvgYA9_iWfD06SI/gviz/tq?tqx=out:csv&headers=1&sheet=Semanal";
+        const ROSTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1B5HYIvtkOzD_bCeXsRL3EFRNr-jCwvgYA9_iWfD06SI/gviz/tq?tqx=out:csv&headers=1&sheet=Directorio";
         const SHEETS_SYNC_INTERVAL_MS = 30000;
         const SHEETS_MAX_DELAY_MS = 300000;
         const WEEKLY_URL_KEY = 'redipWeeklySheetUrl';
@@ -1923,7 +1923,10 @@
                     try {
                         const rawRows = csvToObjects(await fetchCsvText(weeklyUrl));
                         const weekly = weeklyRowsFromSheet(rawRows);
-                        if (rawRows.length && !weekly.rows.length) throw new Error('no se reconocieron filas (la pestaña necesita las columnas Tipo, Fecha, Apure, Barinas, Cojedes, Guárico, Portuguesa)');
+                        if (rawRows.length && !weekly.rows.length) {
+                            const first = keyedRow(rawRows[0]);
+                            throw new Error(`no se reconocieron filas: se leyó Tipo "${first.tipo || ''}" y Fecha "${first.fecha || ''}" (Tipo debe ser Prevención u Operativos, la Fecha AAAA-MM-DD y la fila 1 los encabezados Tipo, Fecha, Apure, Barinas, Cojedes, Guárico, Portuguesa)`);
+                        }
                         cloudApplySupervision(weekly.rows);
                         done.push(`${weekly.rows.length} registros semanales${weekly.ambiguous ? ' (fechas ambiguas: se asume día/mes)' : ''}`);
                     } catch (error) {
@@ -2040,6 +2043,12 @@
         function normalizeSheetDates(rows) {
             const dateKey = Object.keys(rows[0] || {}).find(key => /^fecha\b/i.test(key.trim()));
             if (!dateKey) return { rows, ambiguous: false };
+            // AAAA-M-D o AAAA/MM/DD (por ejemplo 2026-10-1) -> AAAA-MM-DD
+            const looseIso = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?!\d)/;
+            rows.forEach(row => {
+                const iso = String(row[dateKey] || '').trim().match(looseIso);
+                if (iso) row[dateKey] = `${iso[1]}-${String(iso[2]).padStart(2, '0')}-${String(iso[3]).padStart(2, '0')}`;
+            });
             const pattern = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/;
             const parts = rows.map(row => String(row[dateKey] || '').trim().match(pattern)).filter(Boolean);
             const dayFirst = parts.some(match => Number(match[1]) > 12);
