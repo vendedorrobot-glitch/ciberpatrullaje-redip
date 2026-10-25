@@ -1,4 +1,4 @@
-            <!DOCTYPE html>
+           <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -20,7 +20,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">REDIP Los Llanos</h1>
-                    <p class="text-xs text-slate-400">Sistema de Control y Monitoreo de Ciberpatrullaje Redes sociales</p>
+                    <p class="text-xs text-slate-400">Sistema Oficial de Control y Monitoreo de Ciberpatrullaje Redes sociales</p>
                 </div>
             </div>
 
@@ -94,12 +94,16 @@
                         <label for="rosterSheetUrlInput" class="block text-slate-300">Enlace del Google Sheet: Responsables</label>
                         <input id="rosterSheetUrlInput" type="url" autocomplete="off" placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-cyan-500">
                     </div>
+                    <div class="space-y-1 md:col-span-2">
+                        <label for="agendaSheetUrlInput" class="block text-slate-300">Enlace del Google Sheet: Agenda de actividades de alto impacto</label>
+                        <input id="agendaSheetUrlInput" type="url" autocomplete="off" placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-cyan-500">
+                    </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="button" onclick="saveSheetLinks()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer"><i class="fa-solid fa-rotate mr-1"></i> Guardar enlaces y sincronizar ahora</button>
                     <button type="button" onclick="exportDatabaseToExcel()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer"><i class="fa-solid fa-file-excel mr-1"></i> Descargar Excel de base de datos</button>
                 </div>
-                <p class="text-[11px] text-slate-500">Columnas. Semanal: Tipo (Prevención u Operativos), Fecha (AAAA-MM-DD), Apure, Barinas, Cojedes, Guárico, Portuguesa. Responsables: Estado, Unidad, Cargo, Nombre, Credencial, Días libres, Días laborables, Mes, Año, Teléfono, Otras funciones, Cuentas de redes. El Excel que descargas ya trae este formato: impórtalo en Google Sheets (Archivo → Importar). Un cambio llega a todos cuando lo editas en la hoja de Google.</p>
+                <p class="text-[11px] text-slate-500">Columnas. Semanal: Tipo (Prevención u Operativos), Fecha (AAAA-MM-DD), Apure, Barinas, Cojedes, Guárico, Portuguesa. Responsables: Estado, Unidad, Cargo, Nombre, Credencial, Días libres, Días laborables, Mes, Año, Teléfono, Otras funciones, Cuentas de redes. El Excel que descargas ya trae este formato: impórtalo en Google Sheets (Archivo → Importar). Agenda: Fecha, Hora, Actividad, Estado (Regional o un estado), Lugar, Tipo, Responsable, Impacto (Alto o Crítico), Estatus (Programada, En curso, Realizada o Suspendida), Descripción. Un cambio llega a todos cuando lo editas en la hoja de Google.</p>
             </div>
 
             <div id="cloudSyncCard" class="bg-slate-900 p-4 rounded-xl border border-slate-700/50 space-y-3">
@@ -252,6 +256,42 @@
                 </div>
             </div>
 
+            <div id="agendaMasterCard" class="bg-slate-900 border border-amber-500/30 rounded-xl p-4 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 pb-3">
+                    <h4 class="text-sm font-bold text-white"><i class="fa-solid fa-calendar-check text-amber-300 mr-2"></i> Agenda de actividades de alto impacto</h4>
+                    <span id="agendaMasterStatus" class="text-xs text-slate-400" role="status" aria-live="polite"></span>
+                </div>
+                <form id="agendaForm" class="grid grid-cols-1 md:grid-cols-4 gap-3" onsubmit="saveAgendaActivity(event)">
+                    <div><label for="agendaDateInput" class="block text-xs text-slate-300 mb-1">Fecha</label><input id="agendaDateInput" type="date" required class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white"></div>
+                    <div><label for="agendaTimeInput" class="block text-xs text-slate-300 mb-1">Hora</label><input id="agendaTimeInput" type="time" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white"></div>
+                    <div class="md:col-span-2"><label for="agendaTitleInput" class="block text-xs text-slate-300 mb-1">Actividad</label><input id="agendaTitleInput" type="text" maxlength="160" required placeholder="Nombre de la actividad" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white"></div>
+                    <div><label for="agendaStateInput" class="block text-xs text-slate-300 mb-1">Estado</label>
+                        <select id="agendaStateInput" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white">
+                            <option value="REGIONAL">Regional (Los Llanos)</option><option value="APURE">Apure</option><option value="BARINAS">Barinas</option><option value="COJEDES">Cojedes</option><option value="GUÁRICO">Guárico</option><option value="PORTUGUESA">Portuguesa</option>
+                        </select></div>
+                    <div><label for="agendaPlaceInput" class="block text-xs text-slate-300 mb-1">Lugar</label><input id="agendaPlaceInput" type="text" maxlength="120" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white"></div>
+                    <div><label for="agendaTypeInput" class="block text-xs text-slate-300 mb-1">Tipo</label><input id="agendaTypeInput" type="text" maxlength="60" list="agendaTypeList" placeholder="Operativo, Foro…" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white">
+                        <datalist id="agendaTypeList"><option value="Operativo"></option><option value="Jornada"></option><option value="Foro"></option><option value="Capacitación"></option><option value="Reunión"></option><option value="Rueda de prensa"></option><option value="Campaña"></option><option value="Inspección"></option></datalist></div>
+                    <div><label for="agendaOwnerInput" class="block text-xs text-slate-300 mb-1">Responsable</label><input id="agendaOwnerInput" type="text" maxlength="100" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white"></div>
+                    <div><label for="agendaImpactInput" class="block text-xs text-slate-300 mb-1">Impacto</label>
+                        <select id="agendaImpactInput" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white"><option value="Alto">Alto</option><option value="Crítico">Crítico</option></select></div>
+                    <div><label for="agendaStatusInput" class="block text-xs text-slate-300 mb-1">Estatus</label>
+                        <select id="agendaStatusInput" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white"><option value="Programada">Programada</option><option value="En curso">En curso</option><option value="Realizada">Realizada</option><option value="Suspendida">Suspendida</option></select></div>
+                    <div class="md:col-span-3"><label for="agendaDescInput" class="block text-xs text-slate-300 mb-1">Descripción</label><textarea id="agendaDescInput" rows="2" maxlength="600" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white"></textarea></div>
+                    <div class="md:col-span-4 flex flex-wrap items-center gap-2">
+                        <button id="agendaSaveButton" type="submit" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition cursor-pointer">Guardar actividad</button>
+                        <button type="button" onclick="resetAgendaForm()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold px-4 py-2 rounded-lg transition cursor-pointer">Nueva actividad</button>
+                        <span class="text-[11px] text-slate-500">Se guarda en este navegador. Para que llegue a todos, agrégala también en la pestaña Agenda del Google Sheet (o importa el Excel descargado).</span>
+                    </div>
+                </form>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-800 text-slate-400"><tr><th class="p-2">Fecha</th><th class="p-2">Hora</th><th class="p-2">Actividad</th><th class="p-2">Estado</th><th class="p-2">Estatus</th><th class="p-2">Acciones</th></tr></thead>
+                        <tbody id="agendaMasterBody" class="divide-y divide-slate-800 text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
             <section class="bg-slate-900 border border-cyan-800/60 rounded-xl p-4 space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700 pb-3">
                     <div>
@@ -316,6 +356,33 @@
                 <p class="text-xs text-slate-400 mt-2">Fallas de infraestructura</p>
             </div>
         </div>
+
+        <section id="agendaSection" class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm space-y-4" aria-labelledby="agendaTitle">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-700 pb-3">
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.22em] text-amber-300/80">Planificación</p>
+                    <h3 id="agendaTitle" class="text-base font-bold text-white"><i class="fa-solid fa-calendar-check text-amber-300 mr-2"></i> Agenda de actividades de alto impacto</h3>
+                    <p id="agendaSummary" class="text-xs text-slate-400 mt-1">Cargando agenda...</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <select id="agendaRange" aria-label="Período de la agenda" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                        <option value="upcoming">Próximas</option>
+                        <option value="month">Mes seleccionado</option>
+                        <option value="past">Pasadas</option>
+                        <option value="all">Todas</option>
+                    </select>
+                    <select id="agendaStatus" aria-label="Estatus de la actividad" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                        <option value="ALL">Todos los estatus</option>
+                        <option value="Programada">Programada</option>
+                        <option value="En curso">En curso</option>
+                        <option value="Realizada">Realizada</option>
+                        <option value="Suspendida">Suspendida</option>
+                    </select>
+                </div>
+            </div>
+            <div id="agendaStats" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+            <div id="agendaList" class="space-y-3" aria-live="polite"></div>
+        </section>
 
         <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-slate-700 pb-3 mb-4">
@@ -564,6 +631,11 @@
         let sheetsRunning = false;
         let sheetsFailures = 0;
         let sheetsHoldUntil = 0;
+        // Agenda de actividades de alto impacto (pestaña "Agenda" del mismo Google Sheet; se lee por enlace, sin clave).
+        const AGENDA_SHEET_URL = "https://docs.google.com/spreadsheets/d/1B5HYIvtkOzD_bCeXsRL3EFRNr-jCwvgYA9_iWfD06SI/gviz/tq?tqx=out:csv&headers=1&sheet=Agenda";
+        const AGENDA_URL_KEY = 'redipAgendaSheetUrl';
+        const AGENDA_STORAGE_KEY = 'redipAgendaRecords';
+        const AGENDA_KNOWN_KEY = 'redipAgendaKnownIds';
         let cloudTimer = null;
         let cloudDebounce = null;
         let cloudBusy = false;
@@ -1910,13 +1982,15 @@
             if (!manual && Date.now() < sheetsHoldUntil) return;
             const weeklyUrl = normalizeSheetUrl(getWeeklySheetUrl());
             const rosterUrl = normalizeSheetUrl(getRosterSheetUrl());
+            const agendaUrl = normalizeSheetUrl(getAgendaSheetUrl());
             const masterOpen = !document.getElementById('masterPanelContainer').classList.contains('hidden');
-            if (!weeklyUrl && !rosterUrl) {
+            if (!weeklyUrl && !rosterUrl && !agendaUrl) {
                 setSheetsStatus('off', '', 'Pega los enlaces de Google Sheets y pulsa "Guardar enlaces y sincronizar ahora".');
                 return;
             }
             sheetsBusy = true;
             const problems = [];
+            const softProblems = []; // avisos que solo ve el Master (por ejemplo, aún no existe la pestaña Agenda)
             const done = [];
             try {
                 if (weeklyUrl) {
@@ -1946,13 +2020,33 @@
                         problems.push(`Responsables: ${sheetsErrorText(error)}`);
                     }
                 }
+                if (agendaUrl) {
+                    try {
+                        const rawRows = csvToObjects(await fetchCsvText(agendaUrl));
+                        const agenda = agendaFromSheetRows(rawRows);
+                        if (rawRows.length && !agenda.records.length) {
+                            const first = keyedRow(rawRows[0]);
+                            throw new Error(`no se reconocieron filas: se leyó Fecha "${first.fecha || ''}" y Actividad "${first.actividad || ''}" (la pestaña Agenda necesita en la fila 1: Fecha, Hora, Actividad, Estado, Lugar, Tipo, Responsable, Impacto, Estatus, Descripción)`);
+                        }
+                        agendaApply(agenda.records);
+                        done.push(`${agenda.records.length} actividades`);
+                    } catch (error) {
+                        softProblems.push(`Agenda: ${sheetsErrorText(error)}`);
+                    }
+                }
             } finally {
                 sheetsBusy = false;
             }
             sheetsFailures = problems.length ? sheetsFailures + 1 : 0;
             const time = new Date().toLocaleTimeString('es-VE');
             if (!problems.length) {
-                setSheetsStatus('ok', `Registros semanales sincronizados con Google Sheets · ${time}`, `Sincronizado a las ${time}: ${done.join(', ') || 'sin cambios'}.`);
+                const agendaOk = !softProblems.length;
+                setSheetsStatus('ok', `Registros semanales${agendaOk && agendaUrl ? ' y agenda' : ''} sincronizados con Google Sheets · ${time}`,
+                    `Sincronizado a las ${time}: ${done.join(', ') || 'sin cambios'}.${agendaOk ? '' : ` ${softProblems.join(' · ')}`}`);
+                if (!agendaOk) {
+                    const masterEl = document.getElementById('sheetsMasterStatus');
+                    if (masterEl) masterEl.className = 'text-xs text-amber-400';
+                }
             } else {
                 setSheetsStatus('warn', `Google Sheets sin sincronizar: ${problems.join(' · ')}`, `${problems.join(' · ')}${done.length ? ` · OK: ${done.join(', ')}` : ''}`);
             }
@@ -1975,14 +2069,18 @@
         function saveSheetLinks() {
             const weekly = document.getElementById('weeklySheetUrlInput').value.trim();
             const roster = document.getElementById('rosterSheetUrlInput').value.trim();
+            const agenda = document.getElementById('agendaSheetUrlInput').value.trim();
+            if (agenda && !normalizeSheetUrl(agenda)) { setSheetsStatus('warn', '', 'El enlace de Agenda no parece un enlace de Google Sheets (https://docs.google.com/spreadsheets/...).'); return; }
             if (weekly && !normalizeSheetUrl(weekly)) { setSheetsStatus('warn', '', 'El enlace Semanal no parece un enlace de Google Sheets (https://docs.google.com/spreadsheets/...).'); return; }
             if (roster && !normalizeSheetUrl(roster)) { setSheetsStatus('warn', '', 'El enlace de Responsables no parece un enlace de Google Sheets (https://docs.google.com/spreadsheets/...).'); return; }
             try {
                 if (weekly) localStorage.setItem(WEEKLY_URL_KEY, weekly); else localStorage.removeItem(WEEKLY_URL_KEY);
                 if (roster) localStorage.setItem(ROSTER_URL_KEY, roster); else localStorage.removeItem(ROSTER_URL_KEY);
+                if (agenda) localStorage.setItem(AGENDA_URL_KEY, agenda); else localStorage.removeItem(AGENDA_URL_KEY);
             } catch (error) { /* sin almacenamiento */ }
             document.getElementById('weeklySheetUrlInput').value = getWeeklySheetUrl();
             document.getElementById('rosterSheetUrlInput').value = getRosterSheetUrl();
+            document.getElementById('agendaSheetUrlInput').value = getAgendaSheetUrl();
             sheetsFailures = 0;
             sheetsSyncNow(true);
         }
@@ -2003,19 +2101,328 @@
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(weekly), 'Semanal');
             XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(roster), 'Directorio');
+            const agenda = [['Fecha', 'Hora', 'Actividad', 'Estado', 'Lugar', 'Tipo', 'Responsable', 'Impacto', 'Estatus', 'Descripción']];
+            agendaRecords.forEach(record => agenda.push([record.fecha, record.hora, record.actividad, AGENDA_STATE_LABEL[record.estado] || record.estado, record.lugar, record.tipo, record.responsable, record.impacto, record.estatus, record.descripcion]));
+            XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(agenda), 'Agenda');
             XLSX.writeFile(workbook, 'base-de-datos-ciberpatrullaje.xlsx');
-            setSheetsStatus('ok', '', `Excel descargado: ${weekly.length - 1} registros semanales y ${roster.length - 1} responsables.`);
+            setSheetsStatus('ok', '', `Excel descargado: ${weekly.length - 1} registros semanales, ${roster.length - 1} responsables y ${agenda.length - 1} actividades.`);
         }
 
         function initSheetsSync() {
             document.getElementById('weeklySheetUrlInput').value = getWeeklySheetUrl();
             document.getElementById('rosterSheetUrlInput').value = getRosterSheetUrl();
+            document.getElementById('agendaSheetUrlInput').value = getAgendaSheetUrl();
             sheetsRunning = true;
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden && sheetsRunning) sheetsSchedule(800);
             });
             window.addEventListener('online', () => { sheetsFailures = 0; sheetsSyncNow(false); });
             sheetsSyncNow(false).then(() => sheetsSchedule(sheetsNextDelay()));
+        }
+
+        // ---------- Agenda de actividades de alto impacto ----------
+        let agendaRecords = [];
+        let agendaEditingId = null;
+        const AGENDA_MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+        const AGENDA_WEEKDAYS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+        const AGENDA_STATE_LABEL = { REGIONAL: 'Regional', APURE: 'Apure', BARINAS: 'Barinas', COJEDES: 'Cojedes', 'GUÁRICO': 'Guárico', PORTUGUESA: 'Portuguesa' };
+
+        function getAgendaSheetUrl() {
+            try { return localStorage.getItem(AGENDA_URL_KEY) || AGENDA_SHEET_URL; } catch (error) { return AGENDA_SHEET_URL; }
+        }
+
+        function agendaToday() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        function agendaDate(iso) {
+            const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+            if (!match) return null;
+            const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+            return date.getFullYear() === Number(match[1]) && date.getMonth() === Number(match[2]) - 1 && date.getDate() === Number(match[3]) ? date : null;
+        }
+
+        function agendaTime(text) {
+            const match = String(text || '').trim().match(/(\d{1,2})[:.](\d{2})(?::\d{2})?\s*(?:([ap])\.?\s*m\.?)?/i);
+            if (!match) return '';
+            let hour = Number(match[1]);
+            const meridian = match[3] ? match[3].toLowerCase() : '';
+            if (meridian === 'p' && hour < 12) hour += 12;
+            if (meridian === 'a' && hour === 12) hour = 0;
+            return hour > 23 || Number(match[2]) > 59 ? '' : `${String(hour).padStart(2, '0')}:${match[2]}`;
+        }
+
+        function agendaStatusOf(text) {
+            const key = sheetKey(text);
+            if (/real|cumpl|ejecut|conclu|finaliz/.test(key)) return 'Realizada';
+            if (/susp|cancel|difer|postpu/.test(key)) return 'Suspendida';
+            if (/curso|desarrol|ejecuc/.test(key)) return 'En curso';
+            return 'Programada';
+        }
+
+        function agendaImpactOf(text) {
+            const key = sheetKey(text);
+            return /crit|maxim|urgent/.test(key) ? 'Crítico' : 'Alto';
+        }
+
+        function agendaIdFor(record) {
+            return 'A' + cloudHash(`${record.fecha}|${record.hora}|${rosterKey(record.actividad)}`);
+        }
+
+        // Devuelve la actividad ya normalizada, o null si no tiene fecha válida y nombre.
+        function normalizeAgendaRecord(raw) {
+            if (!raw || typeof raw !== 'object') return null;
+            const fecha = String(raw.fecha || '').trim();
+            const actividad = rosterClean(raw.actividad);
+            if (!agendaDate(fecha) || !actividad) return null;
+            const record = {
+                fecha,
+                hora: agendaTime(raw.hora),
+                actividad: actividad.slice(0, 160),
+                estado: rosterState(raw.estado) || 'REGIONAL',
+                lugar: rosterClean(raw.lugar).slice(0, 120),
+                tipo: rosterClean(raw.tipo).slice(0, 60),
+                responsable: rosterClean(raw.responsable).slice(0, 100),
+                impacto: agendaImpactOf(raw.impacto),
+                estatus: agendaStatusOf(raw.estatus),
+                descripcion: rosterClean(raw.descripcion).slice(0, 600),
+                fuente: rosterClean(raw.fuente) || 'Google Sheet',
+                updatedAt: /^\d{4}-\d{2}-\d{2}T/.test(String(raw.updatedAt || '')) ? String(raw.updatedAt) : ''
+            };
+            const id = rosterClean(raw.id);
+            record.id = /^[A-Za-z0-9_-]{4,64}$/.test(id) ? id : agendaIdFor(record);
+            return record;
+        }
+
+        function agendaSort(list) {
+            return list.sort((a, b) => `${a.fecha} ${a.hora || '00:00'}`.localeCompare(`${b.fecha} ${b.hora || '00:00'}`) || a.actividad.localeCompare(b.actividad, 'es'));
+        }
+
+        function agendaFromSheetRows(rawRows) {
+            const normalized = normalizeSheetDates(rawRows.map(row => ({ ...row })));
+            const unique = new Map();
+            let skipped = 0;
+            normalized.rows.forEach(raw => {
+                const row = keyedRow(raw);
+                const record = normalizeAgendaRecord({
+                    fecha: row.fecha,
+                    hora: row.hora,
+                    actividad: pickField(row, ['actividad', 'titulo', 'nombre', 'evento']),
+                    estado: row.estado,
+                    lugar: pickField(row, ['lugar', 'municipio', 'ubicacion']),
+                    tipo: pickField(row, ['tipo', 'categoria']),
+                    responsable: pickField(row, ['responsable', 'encargado']),
+                    impacto: pickField(row, ['impacto', 'prioridad']),
+                    estatus: pickField(row, ['estatus', 'situacion']),
+                    descripcion: pickField(row, ['descripcion', 'detalle', 'observaciones']),
+                    id: row.id,
+                    updatedAt: pickField(row, ['updatedat', 'actualizado'])
+                });
+                if (!record) { skipped += 1; return; }
+                unique.set(record.id, record);
+            });
+            return { records: agendaSort(Array.from(unique.values())), skipped, ambiguous: normalized.ambiguous };
+        }
+
+        function loadAgendaLocal() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(AGENDA_STORAGE_KEY) || '[]');
+                agendaRecords = agendaSort((Array.isArray(saved) ? saved : []).map(normalizeAgendaRecord).filter(Boolean));
+            } catch (error) { agendaRecords = []; }
+        }
+
+        function persistAgenda() {
+            try { localStorage.setItem(AGENDA_STORAGE_KEY, JSON.stringify(agendaRecords)); } catch (error) { console.error('No se pudo guardar la agenda:', error); }
+        }
+
+        // La hoja manda en lo que ya conoce (salvo una edición local más reciente); lo que solo existe aquí se conserva.
+        function agendaApply(serverRecords) {
+            let known = new Set();
+            try { known = new Set(JSON.parse(localStorage.getItem(AGENDA_KNOWN_KEY) || '[]')); } catch (error) { /* sin historial */ }
+            const localById = new Map(agendaRecords.map(record => [record.id, record]));
+            const seen = new Set();
+            const result = [];
+            serverRecords.forEach(server => {
+                seen.add(server.id);
+                const mine = localById.get(server.id);
+                result.push(mine && String(mine.updatedAt || '') > String(server.updatedAt || '') ? mine : server);
+            });
+            agendaRecords.forEach(record => { if (!seen.has(record.id) && !known.has(record.id)) result.push(record); });
+            try { localStorage.setItem(AGENDA_KNOWN_KEY, JSON.stringify(Array.from(seen))); } catch (error) { /* sin almacenamiento */ }
+            agendaSort(result);
+            const changed = JSON.stringify(result) !== JSON.stringify(agendaRecords);
+            if (changed) { agendaRecords = result; persistAgenda(); }
+            renderAgenda();
+            renderAgendaMaster();
+            return changed;
+        }
+
+        function agendaVisibleBase() {
+            const state = document.getElementById('stateSelect') ? document.getElementById('stateSelect').value : 'ALL';
+            return agendaRecords.filter(record => state === 'ALL' || record.estado === state || record.estado === 'REGIONAL');
+        }
+
+        function renderAgenda() {
+            const listEl = document.getElementById('agendaList');
+            if (!listEl) return;
+            const today = agendaToday();
+            const base = agendaVisibleBase();
+            const range = document.getElementById('agendaRange').value;
+            const status = document.getElementById('agendaStatus').value;
+            const month = document.getElementById('monthSelect') ? document.getElementById('monthSelect').value : '';
+            const weekEnd = (() => { const d = new Date(); d.setDate(d.getDate() + 7); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
+
+            const stats = [
+                ['Registradas', base.length, 'text-white'],
+                ['Hoy', base.filter(record => record.fecha === today && record.estatus !== 'Suspendida').length, 'text-amber-300'],
+                ['Próximos 7 días', base.filter(record => record.fecha >= today && record.fecha <= weekEnd && record.estatus !== 'Suspendida').length, 'text-sky-300'],
+                ['Realizadas', base.filter(record => record.estatus === 'Realizada').length, 'text-emerald-300']
+            ];
+            document.getElementById('agendaStats').innerHTML = stats.map(([label, value, color]) =>
+                `<div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3"><p class="text-[10px] uppercase tracking-wider text-slate-400">${escapeHtml(label)}</p><p class="text-xl font-bold ${color} mt-0.5">${value}</p></div>`).join('');
+
+            let items = base.filter(record => status === 'ALL' || record.estatus === status);
+            if (range === 'upcoming') items = items.filter(record => record.fecha >= today);
+            else if (range === 'past') items = items.filter(record => record.fecha < today);
+            else if (range === 'month' && month) items = items.filter(record => record.fecha.startsWith(month));
+            if (range === 'past') items = items.slice().reverse();
+
+            const rangeLabel = { upcoming: 'próximas', past: 'pasadas', month: 'del mes seleccionado', all: 'en total' }[range];
+            document.getElementById('agendaSummary').textContent = agendaRecords.length
+                ? `${items.length} actividades ${rangeLabel}${status !== 'ALL' ? ` · ${status}` : ''}`
+                : 'Aún no hay actividades en la agenda.';
+
+            if (!items.length) {
+                listEl.innerHTML = `<p class="py-6 text-center text-sm text-slate-400">${agendaRecords.length ? 'No hay actividades para los filtros seleccionados.' : 'Cuando se agreguen actividades en la hoja de Agenda, aparecerán aquí.'}</p>`;
+                return;
+            }
+            const impactClass = { 'Crítico': 'bg-rose-500/20 text-rose-300', Alto: 'bg-amber-500/20 text-amber-300' };
+            const statusClass = { Programada: 'bg-sky-500/20 text-sky-300', 'En curso': 'bg-emerald-500/20 text-emerald-300', Realizada: 'bg-slate-500/30 text-slate-300', Suspendida: 'bg-rose-500/10 text-rose-300 line-through' };
+            listEl.innerHTML = items.map(record => {
+                const date = agendaDate(record.fecha);
+                const isToday = record.fecha === today;
+                const dim = record.fecha < today || record.estatus === 'Suspendida' ? 'opacity-70' : '';
+                const meta = [record.hora, record.lugar, record.responsable ? `Responsable: ${record.responsable}` : ''].filter(Boolean).map(escapeHtml).join(' · ');
+                return `<article class="flex gap-3 bg-slate-900 border ${isToday ? 'border-amber-500/70' : 'border-slate-700/60'} rounded-xl p-3 ${dim}">
+                    <div class="w-14 shrink-0 rounded-lg bg-slate-800 border border-slate-700 text-center py-2">
+                        <p class="text-[10px] font-semibold text-amber-300">${AGENDA_MONTHS[date.getMonth()]}</p>
+                        <p class="text-xl font-bold text-white leading-none">${String(date.getDate()).padStart(2, '0')}</p>
+                        <p class="text-[10px] text-slate-400">${AGENDA_WEEKDAYS[date.getDay()]}</p>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
+                            ${isToday ? '<span class="px-2 py-0.5 rounded bg-amber-500 text-slate-900 font-bold">HOY</span>' : ''}
+                            <span class="px-2 py-0.5 rounded ${impactClass[record.impacto] || impactClass.Alto}">Impacto ${escapeHtml(record.impacto)}</span>
+                            <span class="px-2 py-0.5 rounded ${statusClass[record.estatus] || statusClass.Programada}">${escapeHtml(record.estatus)}</span>
+                            ${record.tipo ? `<span class="px-2 py-0.5 rounded bg-slate-700 text-slate-200">${escapeHtml(record.tipo)}</span>` : ''}
+                            <span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300">${escapeHtml(AGENDA_STATE_LABEL[record.estado] || record.estado)}</span>
+                        </div>
+                        <h4 class="text-sm font-semibold text-white mt-1 break-words">${escapeHtml(record.actividad)}</h4>
+                        ${meta ? `<p class="text-xs text-slate-400 mt-0.5 break-words">${meta}</p>` : ''}
+                        ${record.descripcion ? `<p class="text-xs text-slate-300 mt-1 break-words">${escapeHtml(record.descripcion)}</p>` : ''}
+                    </div>
+                </article>`;
+            }).join('');
+        }
+
+        function setAgendaMasterStatus(text, kind) {
+            const element = document.getElementById('agendaMasterStatus');
+            if (!element) return;
+            element.className = `text-xs ${kind === 'warn' ? 'text-amber-400' : (kind === 'ok' ? 'text-emerald-400' : 'text-slate-400')}`;
+            element.textContent = text || '';
+        }
+
+        function renderAgendaMaster() {
+            const body = document.getElementById('agendaMasterBody');
+            if (!body) return;
+            body.innerHTML = agendaRecords.length ? agendaRecords.map(record => `<tr>
+                <td class="p-2 whitespace-nowrap">${escapeHtml(record.fecha)}</td>
+                <td class="p-2">${escapeHtml(record.hora || '—')}</td>
+                <td class="p-2 break-words">${escapeHtml(record.actividad)}</td>
+                <td class="p-2">${escapeHtml(AGENDA_STATE_LABEL[record.estado] || record.estado)}</td>
+                <td class="p-2">${escapeHtml(record.estatus)}</td>
+                <td class="p-2 whitespace-nowrap">
+                    <button type="button" data-agenda-edit="${escapeHtml(record.id)}" class="text-cyan-300 hover:text-cyan-200 underline mr-2 cursor-pointer">Editar</button>
+                    <button type="button" data-agenda-delete="${escapeHtml(record.id)}" class="text-rose-300 hover:text-rose-200 underline cursor-pointer">Eliminar</button>
+                </td></tr>`).join('') : '<tr><td colspan="6" class="p-3 text-center text-slate-400">Sin actividades guardadas.</td></tr>';
+        }
+
+        function resetAgendaForm() {
+            agendaEditingId = null;
+            const form = document.getElementById('agendaForm');
+            if (!form) return;
+            form.reset();
+            document.getElementById('agendaStateInput').value = 'REGIONAL';
+            document.getElementById('agendaImpactInput').value = 'Alto';
+            document.getElementById('agendaStatusInput').value = 'Programada';
+            document.getElementById('agendaSaveButton').textContent = 'Guardar actividad';
+        }
+
+        function saveAgendaActivity(event) {
+            event.preventDefault();
+            const value = id => document.getElementById(id).value;
+            const record = normalizeAgendaRecord({
+                id: agendaEditingId || '',
+                fecha: value('agendaDateInput'), hora: value('agendaTimeInput'), actividad: value('agendaTitleInput'),
+                estado: value('agendaStateInput'), lugar: value('agendaPlaceInput'), tipo: value('agendaTypeInput'),
+                responsable: value('agendaOwnerInput'), impacto: value('agendaImpactInput'), estatus: value('agendaStatusInput'),
+                descripcion: value('agendaDescInput'), fuente: 'Edición Master', updatedAt: new Date().toISOString()
+            });
+            if (!record) { setAgendaMasterStatus('Escribe una fecha válida y el nombre de la actividad.', 'warn'); return; }
+            const index = agendaRecords.findIndex(item => item.id === record.id);
+            if (index >= 0) agendaRecords[index] = record; else agendaRecords.push(record);
+            agendaSort(agendaRecords);
+            persistAgenda();
+            renderAgenda();
+            renderAgendaMaster();
+            resetAgendaForm();
+            setAgendaMasterStatus(`Actividad guardada en este navegador (${agendaRecords.length} en total).`, 'ok');
+        }
+
+        function editAgendaActivity(id) {
+            const record = agendaRecords.find(item => item.id === id);
+            if (!record) return;
+            agendaEditingId = id;
+            const set = (field, text) => { document.getElementById(field).value = text; };
+            set('agendaDateInput', record.fecha); set('agendaTimeInput', record.hora); set('agendaTitleInput', record.actividad);
+            set('agendaStateInput', record.estado); set('agendaPlaceInput', record.lugar); set('agendaTypeInput', record.tipo);
+            set('agendaOwnerInput', record.responsable); set('agendaImpactInput', record.impacto); set('agendaStatusInput', record.estatus);
+            set('agendaDescInput', record.descripcion);
+            document.getElementById('agendaSaveButton').textContent = 'Actualizar actividad';
+            setAgendaMasterStatus('Editando una actividad. Pulsa "Actualizar actividad" para guardar los cambios.', 'ok');
+        }
+
+        function deleteAgendaActivity(id) {
+            const record = agendaRecords.find(item => item.id === id);
+            if (!record || !confirm(`¿Eliminar la actividad "${record.actividad}"?`)) return;
+            agendaRecords = agendaRecords.filter(item => item.id !== id);
+            persistAgenda();
+            renderAgenda();
+            renderAgendaMaster();
+            if (agendaEditingId === id) resetAgendaForm();
+            let known = [];
+            try { known = JSON.parse(localStorage.getItem(AGENDA_KNOWN_KEY) || '[]'); } catch (error) { /* sin historial */ }
+            setAgendaMasterStatus(known.includes(id)
+                ? 'Eliminada aquí. Como viene de Google Sheets, bórrala también en la hoja o reaparecerá.'
+                : 'Actividad eliminada.', known.includes(id) ? 'warn' : 'ok');
+        }
+
+        function initAgenda() {
+            loadAgendaLocal();
+            ['agendaRange', 'agendaStatus', 'stateSelect', 'monthSelect'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.addEventListener('change', renderAgenda);
+            });
+            document.getElementById('agendaMasterBody').addEventListener('click', event => {
+                const edit = event.target.closest('[data-agenda-edit]');
+                const remove = event.target.closest('[data-agenda-delete]');
+                if (edit) editAgendaActivity(edit.getAttribute('data-agenda-edit'));
+                if (remove) deleteAgendaActivity(remove.getAttribute('data-agenda-delete'));
+            });
+            resetAgendaForm();
+            renderAgenda();
+            renderAgendaMaster();
         }
 
         function getConfiguredSheetUrl() {
@@ -3267,6 +3674,7 @@
             }
             initLiveSync();
             initCloudSync();
+            initAgenda();
             initSheetsSync();
         };
     </script>
