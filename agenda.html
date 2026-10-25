@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de actividades de alto impacto - REDIP Los Llanos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen">
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <p class="text-xs text-amber-300 font-semibold">REDIP Los Llanos</p>
+                <h1 class="text-lg font-bold text-white">Agenda de actividades de alto impacto</h1>
+            </div>
+            <button id="backButton" type="button" class="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i> Volver al tablero
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-6 space-y-5">
+        <section class="border-b border-slate-700 pb-4">
+            <p id="agendaSummary" class="text-sm text-slate-400" aria-live="polite">Cargando agenda...</p>
+            <p id="agendaSync" class="text-xs text-slate-500 mt-1" aria-live="polite"></p>
+        </section>
+
+        <section id="agendaStats" class="grid grid-cols-2 sm:grid-cols-4 gap-3" aria-label="Resumen de la agenda"></section>
+
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Filtros de la agenda">
+            <div class="sm:col-span-2 lg:col-span-1">
+                <label for="agendaSearch" class="block text-xs font-medium text-slate-300 mb-1">Buscar</label>
+                <input id="agendaSearch" type="search" placeholder="Actividad, lugar, tipo o responsable" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+                <label for="agendaRange" class="block text-xs font-medium text-slate-300 mb-1">Período</label>
+                <select id="agendaRange" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <option value="upcoming">Próximas</option>
+                    <option value="month">Un mes</option>
+                    <option value="past">Pasadas</option>
+                    <option value="all">Todas</option>
+                </select>
+            </div>
+            <div>
+                <label for="agendaState" class="block text-xs font-medium text-slate-300 mb-1">Estado</label>
+                <select id="agendaState" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <option value="ALL">Todos los estados</option>
+                    <option value="REGIONAL">Regional (Los Llanos)</option>
+                    <option value="APURE">Apure</option>
+                    <option value="BARINAS">Barinas</option>
+                    <option value="COJEDES">Cojedes</option>
+                    <option value="GUÁRICO">Guárico</option>
+                    <option value="PORTUGUESA">Portuguesa</option>
+                </select>
+            </div>
+            <div>
+                <label for="agendaStatus" class="block text-xs font-medium text-slate-300 mb-1">Estatus</label>
+                <select id="agendaStatus" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <option value="ALL">Todos los estatus</option>
+                    <option value="Programada">Programada</option>
+                    <option value="En curso">En curso</option>
+                    <option value="Realizada">Realizada</option>
+                    <option value="Suspendida">Suspendida</option>
+                </select>
+            </div>
+            <div id="agendaMonthBox" class="hidden">
+                <label for="agendaMonth" class="block text-xs font-medium text-slate-300 mb-1">Mes</label>
+                <input id="agendaMonth" type="month" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+            </div>
+        </section>
+
+        <section id="agendaList" class="space-y-3" aria-live="polite"></section>
+    </main>
+
+    <script>
+        const AGENDA_SHEET_URL = "https://docs.google.com/spreadsheets/d/1B5HYIvtkOzD_bCeXsRL3EFRNr-jCwvgYA9_iWfD06SI/gviz/tq?tqx=out:csv&headers=1&sheet=Agenda";
+        const AGENDA_REFRESH_MS = 60000;
+        const AGENDA_MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+        const AGENDA_WEEKDAYS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+        const AGENDA_STATE_LABEL = { REGIONAL: 'Regional', APURE: 'Apure', BARINAS: 'Barinas', COJEDES: 'Cojedes', 'GUÁRICO': 'Guárico', PORTUGUESA: 'Portuguesa' };
+        let agendaRecords = [];
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[character]);
+        }
+
+        function getAgendaSheetUrl() {
+            try { return localStorage.getItem('redipAgendaSheetUrl') || AGENDA_SHEET_URL; } catch (error) { return AGENDA_SHEET_URL; }
+        }
+
+        function parseCsvText(csvText) {
+            const rows = [];
+            let currentRow = [];
+            let currentValue = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const next = csvText[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && next === '"') {
+                        currentValue += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    currentRow.push(currentValue);
+                    currentValue = '';
+                } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                    if (char === '\r' && next === '\n') i++;
+                    currentRow.push(currentValue);
+                    if (currentRow.some(cell => String(cell).trim() !== '')) {
+                        rows.push(currentRow);
+                    }
+                    currentRow = [];
+                    currentValue = '';
+                } else {
+                    currentValue += char;
+                }
+            }
+
+            if (currentValue.length > 0 || currentRow.length > 0) {
+                currentRow.push(currentValue);
+                if (currentRow.some(cell => String(cell).trim() !== '')) rows.push(currentRow);
+            }
+
+            return rows;
+        }
+
+        function normalizeSheetUrl(input) {
+            const raw = String(input || '').trim();
+            if (!raw) return '';
+            let url;
+            try { url = new URL(raw); } catch (error) { return ''; }
+            if (url.protocol !== 'https:' || !/(^|\.)google\.com$|(^|\.)googleusercontent\.com$/.test(url.hostname)) return '';
+            const alreadyCsv = /output=csv|format=csv|tqx=out:csv/i.test(url.search + url.hash);
+            const match = url.pathname.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && !alreadyCsv && !/\/d\/e\//.test(url.pathname)) {
+                const gid = (raw.match(/[#&?]gid=(\d+)/) || [])[1] || '0';
+                return `https://docs.google.com/spreadsheets/d/${match[1]}/gviz/tq?tqx=out:csv&headers=1&gid=${gid}`;
+            }
+            return url.toString();
+        }
+
+        function normalizeSheetDates(rows) {
+            const dateKey = Object.keys(rows[0] || {}).find(key => /^fecha\b/i.test(key.trim()));
+            if (!dateKey) return { rows, ambiguous: false };
+            // AAAA-M-D o AAAA/MM/DD (por ejemplo 2026-10-1) -> AAAA-MM-DD
+            const looseIso = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?!\d)/;
+            rows.forEach(row => {
+                const iso = String(row[dateKey] || '').trim().match(looseIso);
+                if (iso) row[dateKey] = `${iso[1]}-${String(iso[2]).padStart(2, '0')}-${String(iso[3]).padStart(2, '0')}`;
+            });
+            const pattern = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/;
+            const parts = rows.map(row => String(row[dateKey] || '').trim().match(pattern)).filter(Boolean);
+            const dayFirst = parts.some(match => Number(match[1]) > 12);
+            const monthFirst = parts.some(match => Number(match[2]) > 12);
+            const order = monthFirst && !dayFirst ? 'mdy' : 'dmy';
+            const ambiguous = parts.length > 0 && !dayFirst && !monthFirst;
+            const pad = value => String(value).padStart(2, '0');
+            rows.forEach(row => {
+                const match = String(row[dateKey] || '').trim().match(pattern);
+                if (!match) return;
+                const day = order === 'dmy' ? match[1] : match[2];
+                const month = order === 'dmy' ? match[2] : match[1];
+                row[dateKey] = `${match[3]}-${pad(month)}-${pad(day)}`;
+            });
+            return { rows, ambiguous };
+        }
+
+        function sheetKey(text) {
+            return String(text == null ? '' : text).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function keyedRow(raw) {
+            const row = {};
+            Object.keys(raw).forEach(key => { row[sheetKey(key)] = raw[key]; });
+            return row;
+        }
+
+        function pickField(row, names) {
+            for (const name of names) {
+                if (row[name] !== undefined && String(row[name]).trim() !== '') return row[name];
+            }
+            return '';
+        }
+
+        function csvToObjects(text) {
+            const table = parseCsvText(text);
+            if (!table.length) return [];
+            const headers = table[0].map(value => String(value).trim());
+            return table.slice(1).map(row => {
+                const object = {};
+                headers.forEach((header, index) => { if (header) object[header] = row[index] == null ? '' : row[index]; });
+                return object;
+            });
+        }
+
+        async function fetchCsvText(url) {
+            const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`Google respondió ${response.status}; verifica que la hoja esté compartida como "Cualquier persona con el enlace"`);
+            const text = await response.text();
+            if (/^\s*<(!doctype|html)/i.test(text)) throw new Error('la hoja no es pública (Google pidió iniciar sesión)');
+            return text;
+        }
+
+        function rosterKey(text) {
+            return String(text == null ? '' : text).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        }
+
+        function rosterClean(value) {
+            return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+        }
+
+        function rosterState(value) {
+            const key = rosterKey(value);
+            if (key.includes('APURE')) return 'APURE';
+            if (key.includes('BARINAS')) return 'BARINAS';
+            if (key.includes('COJEDES')) return 'COJEDES';
+            if (key.includes('GUARICO')) return 'GUÁRICO';
+            if (key.includes('PORTUGUESA')) return 'PORTUGUESA';
+            return '';
+        }
+
+        function cloudHash(text) {
+            let a = 5381, b = 0;
+            for (let i = 0; i < text.length; i++) {
+                a = ((a << 5) + a + text.charCodeAt(i)) | 0;
+                b = (text.charCodeAt(i) + (b << 6) + (b << 16) - b) | 0;
+            }
+            return (a >>> 0).toString(36).padStart(6, '0') + (b >>> 0).toString(36).padStart(6, '0');
+        }
+
+        function agendaToday() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        function agendaDate(iso) {
+            const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+            if (!match) return null;
+            const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+            return date.getFullYear() === Number(match[1]) && date.getMonth() === Number(match[2]) - 1 && date.getDate() === Number(match[3]) ? date : null;
+        }
+
+        function agendaTime(text) {
+            const match = String(text || '').trim().match(/(\d{1,2})[:.](\d{2})(?::\d{2})?\s*(?:([ap])\.?\s*m\.?)?/i);
+            if (!match) return '';
+            let hour = Number(match[1]);
+            const meridian = match[3] ? match[3].toLowerCase() : '';
+            if (meridian === 'p' && hour < 12) hour += 12;
+            if (meridian === 'a' && hour === 12) hour = 0;
+            return hour > 23 || Number(match[2]) > 59 ? '' : `${String(hour).padStart(2, '0')}:${match[2]}`;
+        }
+
+        function agendaStatusOf(text) {
+            const key = sheetKey(text);
+            if (/real|cumpl|ejecut|conclu|finaliz/.test(key)) return 'Realizada';
+            if (/susp|cancel|difer|postpu/.test(key)) return 'Suspendida';
+            if (/curso|desarrol|ejecuc/.test(key)) return 'En curso';
+            return 'Programada';
+        }
+
+        function agendaImpactOf(text) {
+            const key = sheetKey(text);
+            return /crit|maxim|urgent/.test(key) ? 'Crítico' : 'Alto';
+        }
+
+        function agendaIdFor(record) {
+            return 'A' + cloudHash(`${record.fecha}|${record.hora}|${rosterKey(record.actividad)}`);
+        }
+
+        function normalizeAgendaRecord(raw) {
+            if (!raw || typeof raw !== 'object') return null;
+            const fecha = String(raw.fecha || '').trim();
+            const actividad = rosterClean(raw.actividad);
+            if (!agendaDate(fecha) || !actividad) return null;
+            const record = {
+                fecha,
+                hora: agendaTime(raw.hora),
+                actividad: actividad.slice(0, 160),
+                estado: rosterState(raw.estado) || 'REGIONAL',
+                lugar: rosterClean(raw.lugar).slice(0, 120),
+                tipo: rosterClean(raw.tipo).slice(0, 60),
+                responsable: rosterClean(raw.responsable).slice(0, 100),
+                impacto: agendaImpactOf(raw.impacto),
+                estatus: agendaStatusOf(raw.estatus),
+                descripcion: rosterClean(raw.descripcion).slice(0, 600),
+                fuente: rosterClean(raw.fuente) || 'Google Sheet',
+                updatedAt: /^\d{4}-\d{2}-\d{2}T/.test(String(raw.updatedAt || '')) ? String(raw.updatedAt) : ''
+            };
+            const id = rosterClean(raw.id);
+            record.id = /^[A-Za-z0-9_-]{4,64}$/.test(id) ? id : agendaIdFor(record);
+            return record;
+        }
+
+        function agendaSort(list) {
+            return list.sort((a, b) => `${a.fecha} ${a.hora || '00:00'}`.localeCompare(`${b.fecha} ${b.hora || '00:00'}`) || a.actividad.localeCompare(b.actividad, 'es'));
+        }
+
+        function agendaFromSheetRows(rawRows) {
+            const normalized = normalizeSheetDates(rawRows.map(row => ({ ...row })));
+            const unique = new Map();
+            let skipped = 0;
+            normalized.rows.forEach(raw => {
+                const row = keyedRow(raw);
+                const record = normalizeAgendaRecord({
+                    fecha: row.fecha,
+                    hora: row.hora,
+                    actividad: pickField(row, ['actividad', 'titulo', 'nombre', 'evento']),
+                    estado: row.estado,
+                    lugar: pickField(row, ['lugar', 'municipio', 'ubicacion']),
+                    tipo: pickField(row, ['tipo', 'categoria']),
+                    responsable: pickField(row, ['responsable', 'encargado']),
+                    impacto: pickField(row, ['impacto', 'prioridad']),
+                    estatus: pickField(row, ['estatus', 'situacion']),
+                    descripcion: pickField(row, ['descripcion', 'detalle', 'observaciones']),
+                    id: row.id,
+                    updatedAt: pickField(row, ['updatedat', 'actualizado'])
+                });
+                if (!record) { skipped += 1; return; }
+                unique.set(record.id, record);
+            });
+            return { records: agendaSort(Array.from(unique.values())), skipped, ambiguous: normalized.ambiguous };
+        }
+
+
+        // Une la hoja con lo que el Master tiene guardado en este navegador (lo que solo existe aquí se conserva).
+        function mergeAgenda(serverRecords, localRecords) {
+            let known = new Set();
+            try { known = new Set(JSON.parse(localStorage.getItem('redipAgendaKnownIds') || '[]')); } catch (error) { /* sin historial */ }
+            const localById = new Map(localRecords.map(record => [record.id, record]));
+            const seen = new Set();
+            const result = serverRecords.map(server => {
+                seen.add(server.id);
+                const mine = localById.get(server.id);
+                return mine && String(mine.updatedAt || '') > String(server.updatedAt || '') ? mine : server;
+            });
+            localRecords.forEach(record => { if (!seen.has(record.id) && !known.has(record.id)) result.push(record); });
+            return agendaSort(result);
+        }
+
+        function renderAgenda() {
+            const today = agendaToday();
+            const query = sheetKey(document.getElementById('agendaSearch').value);
+            const range = document.getElementById('agendaRange').value;
+            const state = document.getElementById('agendaState').value;
+            const status = document.getElementById('agendaStatus').value;
+            const month = document.getElementById('agendaMonth').value;
+            document.getElementById('agendaMonthBox').classList.toggle('hidden', range !== 'month');
+            const weekEnd = (() => { const d = new Date(); d.setDate(d.getDate() + 7); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
+
+            const base = agendaRecords.filter(record => state === 'ALL' || record.estado === state || (state !== 'REGIONAL' && record.estado === 'REGIONAL'));
+            const stats = [
+                ['Registradas', base.length, 'text-white'],
+                ['Hoy', base.filter(record => record.fecha === today && record.estatus !== 'Suspendida').length, 'text-amber-300'],
+                ['Próximos 7 días', base.filter(record => record.fecha >= today && record.fecha <= weekEnd && record.estatus !== 'Suspendida').length, 'text-sky-300'],
+                ['Realizadas', base.filter(record => record.estatus === 'Realizada').length, 'text-emerald-300']
+            ];
+            document.getElementById('agendaStats').innerHTML = stats.map(([label, value, color]) =>
+                `<div class="bg-slate-800 border border-slate-700/60 rounded-xl p-3"><p class="text-[10px] uppercase tracking-wider text-slate-400">${escapeHtml(label)}</p><p class="text-xl font-bold ${color} mt-0.5">${value}</p></div>`).join('');
+
+            let items = base.filter(record => (status === 'ALL' || record.estatus === status)
+                && (!query || sheetKey(`${record.actividad} ${record.lugar} ${record.tipo} ${record.responsable} ${record.descripcion}`).includes(query)));
+            if (range === 'upcoming') items = items.filter(record => record.fecha >= today);
+            else if (range === 'past') items = items.filter(record => record.fecha < today).reverse();
+            else if (range === 'month' && month) items = items.filter(record => record.fecha.startsWith(month));
+
+            const label = { upcoming: 'próximas', past: 'pasadas', month: 'del mes elegido', all: 'en total' }[range];
+            document.getElementById('agendaSummary').textContent = agendaRecords.length
+                ? `${items.length} actividades ${label}` : 'Aún no hay actividades en la agenda.';
+
+            const list = document.getElementById('agendaList');
+            if (!items.length) {
+                list.innerHTML = `<p class="py-8 text-center text-sm text-slate-400">${agendaRecords.length ? 'No hay actividades para los filtros seleccionados.' : 'Cuando se agreguen actividades en la hoja de Agenda, aparecerán aquí.'}</p>`;
+                return;
+            }
+            const impactClass = { 'Crítico': 'bg-rose-500/20 text-rose-300', Alto: 'bg-amber-500/20 text-amber-300' };
+            const statusClass = { Programada: 'bg-sky-500/20 text-sky-300', 'En curso': 'bg-emerald-500/20 text-emerald-300', Realizada: 'bg-slate-500/30 text-slate-300', Suspendida: 'bg-rose-500/10 text-rose-300 line-through' };
+            list.innerHTML = items.map(record => {
+                const date = agendaDate(record.fecha);
+                const isToday = record.fecha === today;
+                const dim = record.fecha < today || record.estatus === 'Suspendida' ? 'opacity-70' : '';
+                const meta = [record.hora, record.lugar, record.responsable ? `Responsable: ${record.responsable}` : ''].filter(Boolean).map(escapeHtml).join(' · ');
+                return `<article class="flex gap-3 bg-slate-800 border ${isToday ? 'border-amber-500/70' : 'border-slate-700/60'} rounded-xl p-3 ${dim}">
+                    <div class="w-14 shrink-0 rounded-lg bg-slate-900 border border-slate-700 text-center py-2">
+                        <p class="text-[10px] font-semibold text-amber-300">${AGENDA_MONTHS[date.getMonth()]}</p>
+                        <p class="text-xl font-bold text-white leading-none">${String(date.getDate()).padStart(2, '0')}</p>
+                        <p class="text-[10px] text-slate-400">${AGENDA_WEEKDAYS[date.getDay()]}</p>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
+                            ${isToday ? '<span class="px-2 py-0.5 rounded bg-amber-500 text-slate-900 font-bold">HOY</span>' : ''}
+                            <span class="px-2 py-0.5 rounded ${impactClass[record.impacto] || impactClass.Alto}">Impacto ${escapeHtml(record.impacto)}</span>
+                            <span class="px-2 py-0.5 rounded ${statusClass[record.estatus] || statusClass.Programada}">${escapeHtml(record.estatus)}</span>
+                            ${record.tipo ? `<span class="px-2 py-0.5 rounded bg-slate-700 text-slate-200">${escapeHtml(record.tipo)}</span>` : ''}
+                            <span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300">${escapeHtml(AGENDA_STATE_LABEL[record.estado] || record.estado)}</span>
+                        </div>
+                        <h2 class="text-sm font-semibold text-white mt-1 break-words">${escapeHtml(record.actividad)}</h2>
+                        ${meta ? `<p class="text-xs text-slate-400 mt-0.5 break-words">${meta}</p>` : ''}
+                        ${record.descripcion ? `<p class="text-xs text-slate-300 mt-1 break-words">${escapeHtml(record.descripcion)}</p>` : ''}
+                    </div>
+                </article>`;
+            }).join('');
+        }
+
+        async function loadAgenda() {
+            let sheetRecords = null;
+            let problem = '';
+            const url = normalizeSheetUrl(getAgendaSheetUrl());
+            if (url) {
+                try {
+                    const rawRows = csvToObjects(await fetchCsvText(url));
+                    const parsed = agendaFromSheetRows(rawRows);
+                    if (rawRows.length && !parsed.records.length) throw new Error('no se reconocieron filas (la pestaña Agenda necesita las columnas Fecha, Hora, Actividad, Estado, Lugar, Tipo, Responsable, Impacto, Estatus, Descripción)');
+                    sheetRecords = parsed.records;
+                } catch (error) {
+                    console.error('No se pudo leer la agenda:', error);
+                    problem = error && error.name === 'TypeError'
+                        ? 'no se pudo leer la hoja (sin internet o no está compartida como "Cualquier persona con el enlace")'
+                        : (error && error.message) || 'error desconocido';
+                }
+            }
+            let local = [];
+            try {
+                const saved = JSON.parse(localStorage.getItem('redipAgendaRecords') || '[]');
+                local = agendaSort((Array.isArray(saved) ? saved : []).map(normalizeAgendaRecord).filter(Boolean));
+            } catch (error) { /* lista local ilegible */ }
+            const records = sheetRecords ? mergeAgenda(sheetRecords, local) : local;
+            if (!sheetRecords && !local.length && problem) {
+                document.getElementById('agendaSummary').textContent = 'No se pudo cargar la agenda.';
+                document.getElementById('agendaList').innerHTML = `<p class="py-8 text-center text-sm text-rose-300">${escapeHtml(problem)}</p>`;
+                return;
+            }
+            const changed = JSON.stringify(records) !== JSON.stringify(agendaRecords);
+            agendaRecords = records;
+            if (changed || !document.getElementById('agendaList').children.length) renderAgenda();
+            document.getElementById('agendaSync').textContent = sheetRecords
+                ? `Sincronizado con Google Sheets · ${new Date().toLocaleTimeString('es-VE')}`
+                : (problem ? `No se pudo actualizar desde Google Sheets: ${problem}. Se muestra la última agenda guardada.` : '');
+        }
+
+        ['agendaSearch', 'agendaRange', 'agendaState', 'agendaStatus', 'agendaMonth'].forEach(id => {
+            document.getElementById(id).addEventListener(id === 'agendaSearch' ? 'input' : 'change', renderAgenda);
+        });
+        window.addEventListener('storage', event => { if (event.key === 'redipAgendaRecords') loadAgenda(); });
+        document.getElementById('backButton').addEventListener('click', () => {
+            if (window.history.length > 1) window.history.back();
+            else window.location.href = 'index.html';
+        });
+        document.getElementById('agendaMonth').value = agendaToday().slice(0, 7);
+        loadAgenda();
+        setInterval(() => { if (!document.hidden) loadAgenda(); }, AGENDA_REFRESH_MS);
+    </script>
+</body>
+</html>
