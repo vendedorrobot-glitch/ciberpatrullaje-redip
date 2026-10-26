@@ -1,4 +1,4 @@
-     <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +9,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Cinta de actividades: se desplaza lentamente; se pausa al pasar el cursor, con el teclado o con el botón */
+        .agenda-track { animation: agendaScroll var(--agenda-duration, 60s) linear infinite; }
+        .agenda-slider:hover .agenda-track,
+        .agenda-slider:focus-within .agenda-track,
+        .agenda-slider.paused .agenda-track { animation-play-state: paused; }
+        .agenda-slider.static .agenda-track { animation: none; }
+        @keyframes agendaScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @media (prefers-reduced-motion: reduce) {
+            .agenda-track { animation: none; }
+            .agenda-viewport { overflow-x: auto; }
+        }
+    </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen">
 
@@ -93,7 +106,7 @@
                 <p class="text-[11px] text-slate-400">Pega el enlace de cada pestaña (ábrela y copia la dirección de la barra del navegador). Las hojas deben estar compartidas como "Cualquier persona con el enlace: Lector". Se actualizan solas cada 30 segundos.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     <div class="space-y-1">
-                        <label for="weeklySheetUrlInput" class="block text-slate-300">Enlace del Google Sheet: Semanal (Prevención / Operativos)</label>
+                        <label for="weeklySheetUrlInput" class="block text-slate-300">Enlace del Google Sheet: Semanal (Prevención / Operativos / Actividad)</label>
                         <input id="weeklySheetUrlInput" type="url" autocomplete="off" placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-cyan-500">
                     </div>
                     <div class="space-y-1">
@@ -109,7 +122,7 @@
                     <button type="button" onclick="saveSheetLinks()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer"><i class="fa-solid fa-rotate mr-1"></i> Guardar enlaces y sincronizar ahora</button>
                     <button type="button" onclick="exportDatabaseToExcel()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer"><i class="fa-solid fa-file-excel mr-1"></i> Descargar Excel de base de datos</button>
                 </div>
-                <p class="text-[11px] text-slate-500">Columnas. Semanal: Tipo (Prevención u Operativos), Fecha (AAAA-MM-DD), Apure, Barinas, Cojedes, Guárico, Portuguesa. Responsables: Estado, Unidad, Cargo, Nombre, Credencial, Días libres, Días laborables, Mes, Año, Teléfono, Otras funciones, Cuentas de redes. El Excel que descargas ya trae este formato: impórtalo en Google Sheets (Archivo → Importar). Agenda: Fecha, Hora, Actividad, Estado (Regional o un estado), Lugar, Tipo, Responsable, Impacto (Alto o Crítico), Estatus (Programada, En curso, Realizada o Suspendida), Descripción. Un cambio llega a todos cuando lo editas en la hoja de Google.</p>
+                <p class="text-[11px] text-slate-500">Columnas. Semanal: Tipo (Prevención, Operativos o Actividad), Fecha (AAAA-MM-DD), Apure, Barinas, Cojedes, Guárico, Portuguesa. Responsables: Estado, Unidad, Cargo, Nombre, Credencial, Días libres, Días laborables, Mes, Año, Teléfono, Otras funciones, Cuentas de redes. El Excel que descargas ya trae este formato: impórtalo en Google Sheets (Archivo → Importar). Agenda: Fecha, Hora, Actividad, Estado (Regional o un estado), Lugar, Tipo, Responsable, Impacto (Alto o Crítico), Estatus (Programada, En curso, Realizada o Suspendida), Descripción. Un cambio llega a todos cuando lo editas en la hoja de Google.</p>
             </div>
 
             <div id="cloudSyncCard" class="bg-slate-900 p-4 rounded-xl border border-slate-700/50 space-y-3">
@@ -193,6 +206,7 @@
                         <select id="weeklyTypeInput" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
                             <option value="prevencion">Prevención Integral</option>
                             <option value="operativos">Operativos de Seguridad</option>
+                            <option value="actividades">Actividad (cualquier día)</option>
                         </select>
                     </div>
 
@@ -341,6 +355,22 @@
             </section>
         </div>
 
+        <section id="agendaSlider" class="hidden" aria-label="Próximas actividades de alto impacto">
+            <div class="agenda-slider relative overflow-hidden rounded-xl border border-amber-500/30 bg-slate-800/80 shadow-sm">
+                <div class="flex items-stretch">
+                    <a href="agenda.html" target="_blank" rel="noopener" class="shrink-0 flex flex-col justify-center gap-0.5 px-4 py-2 bg-amber-600/90 hover:bg-amber-500 text-white transition" title="Abrir la agenda completa">
+                        <span class="text-[10px] uppercase tracking-[0.2em] font-semibold opacity-90"><i class="fa-solid fa-calendar-check mr-1"></i> Agenda</span>
+                        <span class="text-xs font-bold leading-tight">Actividades de<br>alto impacto</span>
+                        <span class="text-[10px] opacity-90">Ver todas →</span>
+                    </a>
+                    <div class="agenda-viewport relative flex-1 overflow-hidden">
+                        <div id="agendaTrack" class="agenda-track flex w-max py-2 pl-3"></div>
+                    </div>
+                    <button id="agendaToggle" type="button" class="shrink-0 px-3 text-slate-300 hover:text-white bg-slate-900/60 cursor-pointer" aria-label="Pausar el desplazamiento" aria-pressed="false"><i class="fa-solid fa-pause"></i></button>
+                </div>
+            </div>
+        </section>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-4 shadow-sm">
                 <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Marcas Excelentes</p>
@@ -363,33 +393,6 @@
                 <p class="text-xs text-slate-400 mt-2">Fallas de infraestructura</p>
             </div>
         </div>
-
-        <section id="agendaSection" class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm space-y-4" aria-labelledby="agendaTitle">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-700 pb-3">
-                <div>
-                    <p class="text-[10px] uppercase tracking-[0.22em] text-amber-300/80">Planificación</p>
-                    <h3 id="agendaTitle" class="text-base font-bold text-white"><i class="fa-solid fa-calendar-check text-amber-300 mr-2"></i> Agenda de actividades de alto impacto</h3>
-                    <p id="agendaSummary" class="text-xs text-slate-400 mt-1">Cargando agenda...</p>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <select id="agendaRange" aria-label="Período de la agenda" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
-                        <option value="upcoming">Próximas</option>
-                        <option value="month">Mes seleccionado</option>
-                        <option value="past">Pasadas</option>
-                        <option value="all">Todas</option>
-                    </select>
-                    <select id="agendaStatus" aria-label="Estatus de la actividad" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
-                        <option value="ALL">Todos los estatus</option>
-                        <option value="Programada">Programada</option>
-                        <option value="En curso">En curso</option>
-                        <option value="Realizada">Realizada</option>
-                        <option value="Suspendida">Suspendida</option>
-                    </select>
-                </div>
-            </div>
-            <div id="agendaStats" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
-            <div id="agendaList" class="space-y-3" aria-live="polite"></div>
-        </section>
 
         <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-slate-700 pb-3 mb-4">
@@ -424,7 +427,7 @@
 
         <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-5 shadow-sm space-y-6">
             <h3 class="text-base font-bold text-white border-b border-slate-700 pb-3">
-                <i class="fa-solid fa-calendar-week text-emerald-400 mr-2"></i> Reportes de Supervisión: Prevención vs Operativos
+                <i class="fa-solid fa-calendar-week text-emerald-400 mr-2"></i> Reportes de Supervisión: Prevención, Operativos y Actividades
             </h3>
 
             <div class="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -476,7 +479,29 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6">
+                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
+                    <h4 class="text-sm font-bold text-amber-400 mb-3"><i class="fa-solid fa-list-check mr-1.5"></i> Actividades (cualquier día)</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-800 text-slate-400">
+                                <tr id="actividadesTableHeader">
+                                    <th class="p-2">Día</th>
+                                    <th class="p-2">Apure</th>
+                                    <th class="p-2">Barinas</th>
+                                    <th class="p-2">Cojedes</th>
+                                    <th class="p-2">Guárico</th>
+                                    <th class="p-2">Portuguesa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="actividadesTableBody" class="divide-y divide-slate-800 text-slate-300"></tbody>
+                        </table>
+                    </div>
+                    <div id="actividadesPager" class="flex flex-wrap items-center justify-between gap-2 mt-3"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
                     <h5 class="text-xs font-bold text-slate-200 mb-3">Prevención Integral por Estado</h5>
                     <div class="relative h-52 w-full"><canvas id="prevencionChart"></canvas></div>
@@ -484,6 +509,10 @@
                 <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
                     <h5 class="text-xs font-bold text-slate-200 mb-3">Operativos de Seguridad por Estado</h5>
                     <div class="relative h-52 w-full"><canvas id="operativosChart"></canvas></div>
+                </div>
+                <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
+                    <h5 class="text-xs font-bold text-slate-200 mb-3">Actividades por Estado</h5>
+                    <div class="relative h-52 w-full"><canvas id="actividadesChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -637,6 +666,7 @@
         let reportOverviewChartInstance = null;
         let prevencionChartInstance = null;
         let operativosChartInstance = null;
+        let actividadesChartInstance = null;
         let unitDetailChartInstance = null;
 
         const MASTER_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"; // SHA-256; la clave ya no se guarda en texto plano
@@ -738,6 +768,7 @@
                     document.getElementById('monthSelect').appendChild(option);
                 }
             }
+            if (!Array.isArray(dbReports[monthKey].actividades)) dbReports[monthKey].actividades = [];
             return dbReports[monthKey];
         }
 
@@ -1383,7 +1414,8 @@
                     ...previousData,
                     estados: {},
                     prevencion: previousData.prevencion,
-                    operativos: previousData.operativos
+                    operativos: previousData.operativos,
+                    actividades: previousData.actividades
                 };
                 const monthEnd = new Date(Number(monthKey.slice(0, 4)), Number(monthKey.slice(5, 7)), 0).getDate();
                 const reportingDays = month.latestDay || monthEnd;
@@ -1654,7 +1686,7 @@
             const rows = [];
             Object.entries(dbReports).forEach(([monthKey, data]) => {
                 if (!/^\d{4}-\d{2}$/.test(monthKey) || !data) return;
-                [['prevencion', data.prevencion], ['operativos', data.operativos]].forEach(([tipo, list]) => {
+                [['prevencion', data.prevencion], ['operativos', data.operativos], ['actividades', data.actividades]].forEach(([tipo, list]) => {
                     (Array.isArray(list) ? list : []).forEach(item => {
                         if (/^\d{4}-\d{2}-\d{2}$/.test(String(item.fecha || ''))) rows.push(cloudSupervisionRow(tipo, item));
                     });
@@ -1677,8 +1709,8 @@
             [...rows, ...localOnly].forEach(row => {
                 const month = String(row.fecha).slice(0, 7);
                 if (!/^\d{4}-\d{2}$/.test(month)) return;
-                if (!byMonth[month]) byMonth[month] = { prevencion: [], operativos: [] };
-                byMonth[month][row.tipo === 'prevencion' ? 'prevencion' : 'operativos'].push({
+                if (!byMonth[month]) byMonth[month] = { prevencion: [], operativos: [], actividades: [] };
+                byMonth[month][WEEKLY_TYPES.includes(row.tipo) ? row.tipo : 'operativos'].push({
                     dia: row.dia, fecha: row.fecha, apure: row.apure, barinas: row.barinas,
                     cojedes: row.cojedes, guarico: row.guarico, portuguesa: row.portuguesa
                 });
@@ -1688,8 +1720,8 @@
             months.forEach(month => {
                 const data = ensureMonthData(month);
                 if (!data) return;
-                const next = byMonth[month] || { prevencion: [], operativos: [] };
-                ['prevencion', 'operativos'].forEach(type => {
+                const next = byMonth[month] || { prevencion: [], operativos: [], actividades: [] };
+                ['prevencion', 'operativos', 'actividades'].forEach(type => {
                     const list = next[type].sort((a, b) => a.fecha.localeCompare(b.fecha));
                     if (JSON.stringify(data[type] || []) !== JSON.stringify(list)) { data[type] = list; changed = true; }
                 });
@@ -1932,7 +1964,7 @@
             normalized.rows.forEach(raw => {
                 const row = keyedRow(raw);
                 const typeKey = sheetKey(row.tipo);
-                const tipo = typeKey.startsWith('prev') ? 'prevencion' : (typeKey.startsWith('oper') ? 'operativos' : '');
+                const tipo = typeKey.startsWith('prev') ? 'prevencion' : (typeKey.startsWith('oper') ? 'operativos' : (typeKey.startsWith('activ') ? 'actividades' : ''));
                 const fecha = String(row.fecha || '').trim();
                 const date = /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? parseReportDate(fecha) : null;
                 if (!tipo || !date) { skipped += 1; return; }
@@ -2052,7 +2084,7 @@
                         const weekly = weeklyRowsFromSheet(rawRows);
                         if (rawRows.length && !weekly.rows.length) {
                             const first = keyedRow(rawRows[0]);
-                            throw new Error(`no se reconocieron filas: se leyó Tipo "${first.tipo || ''}" y Fecha "${first.fecha || ''}" (Tipo debe ser Prevención u Operativos, la Fecha AAAA-MM-DD y la fila 1 los encabezados Tipo, Fecha, Apure, Barinas, Cojedes, Guárico, Portuguesa)`);
+                            throw new Error(`no se reconocieron filas: se leyó Tipo "${first.tipo || ''}" y Fecha "${first.fecha || ''}" (Tipo debe ser Prevención, Operativos o Actividad, la Fecha AAAA-MM-DD y la fila 1 los encabezados Tipo, Fecha, Apure, Barinas, Cojedes, Guárico, Portuguesa)`);
                         }
                         cloudApplySupervision(weekly.rows);
                         done.push(`${weekly.rows.length} registros semanales${weekly.ambiguous ? ' (fechas ambiguas: se asume día/mes)' : ''}`);
@@ -2144,7 +2176,7 @@
             const weekly = [['Tipo', 'Fecha', 'Apure', 'Barinas', 'Cojedes', 'Guárico', 'Portuguesa']];
             cloudLocalSupervisionRows()
                 .sort((a, b) => a.fecha.localeCompare(b.fecha) || a.tipo.localeCompare(b.tipo))
-                .forEach(row => weekly.push([row.tipo === 'prevencion' ? 'Prevención' : 'Operativos', row.fecha, row.apure, row.barinas, row.cojedes, row.guarico, row.portuguesa]));
+                .forEach(row => weekly.push([({ prevencion: 'Prevención', operativos: 'Operativos', actividades: 'Actividad' })[row.tipo] || 'Operativos', row.fecha, row.apure, row.barinas, row.cojedes, row.guarico, row.portuguesa]));
             const roster = [['Estado', 'Unidad', 'Cargo', 'Nombre', 'Credencial', 'Días libres', 'Días laborables', 'Mes', 'Año', 'Teléfono', 'Otras funciones', 'Cuentas de redes']];
             masterRosterRecords.forEach(record => roster.push([
                 record.estado || '', record.unidad || '', record.cargo || '', record.nombre || '', record.credencial || '',
@@ -2316,67 +2348,49 @@
             return agendaRecords.filter(record => state === 'ALL' || record.estado === state || record.estado === 'REGIONAL');
         }
 
+        // Cinta de actividades próximas: se desplaza despacio y se pausa al pasar el cursor o con el botón.
         function renderAgenda() {
-            const listEl = document.getElementById('agendaList');
-            if (!listEl) return;
+            const section = document.getElementById('agendaSlider');
+            const track = document.getElementById('agendaTrack');
+            if (!section || !track) return;
+            if (!agendaRecords.length) { section.classList.add('hidden'); track.innerHTML = ''; return; }
+            section.classList.remove('hidden');
+            const slider = section.querySelector('.agenda-slider');
             const today = agendaToday();
-            const base = agendaVisibleBase();
-            const range = document.getElementById('agendaRange').value;
-            const status = document.getElementById('agendaStatus').value;
-            const month = document.getElementById('monthSelect') ? document.getElementById('monthSelect').value : '';
-            const weekEnd = (() => { const d = new Date(); d.setDate(d.getDate() + 7); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
-
-            const stats = [
-                ['Registradas', base.length, 'text-white'],
-                ['Hoy', base.filter(record => record.fecha === today && record.estatus !== 'Suspendida').length, 'text-amber-300'],
-                ['Próximos 7 días', base.filter(record => record.fecha >= today && record.fecha <= weekEnd && record.estatus !== 'Suspendida').length, 'text-sky-300'],
-                ['Realizadas', base.filter(record => record.estatus === 'Realizada').length, 'text-emerald-300']
-            ];
-            document.getElementById('agendaStats').innerHTML = stats.map(([label, value, color]) =>
-                `<div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3"><p class="text-[10px] uppercase tracking-wider text-slate-400">${escapeHtml(label)}</p><p class="text-xl font-bold ${color} mt-0.5">${value}</p></div>`).join('');
-
-            let items = base.filter(record => status === 'ALL' || record.estatus === status);
-            if (range === 'upcoming') items = items.filter(record => record.fecha >= today);
-            else if (range === 'past') items = items.filter(record => record.fecha < today);
-            else if (range === 'month' && month) items = items.filter(record => record.fecha.startsWith(month));
-            if (range === 'past') items = items.slice().reverse();
-
-            const rangeLabel = { upcoming: 'próximas', past: 'pasadas', month: 'del mes seleccionado', all: 'en total' }[range];
-            document.getElementById('agendaSummary').textContent = agendaRecords.length
-                ? `${items.length} actividades ${rangeLabel}${status !== 'ALL' ? ` · ${status}` : ''}`
-                : 'Aún no hay actividades en la agenda.';
-
-            if (!items.length) {
-                listEl.innerHTML = `<p class="py-6 text-center text-sm text-slate-400">${agendaRecords.length ? 'No hay actividades para los filtros seleccionados.' : 'Cuando se agreguen actividades en la hoja de Agenda, aparecerán aquí.'}</p>`;
-                return;
-            }
+            const upcoming = agendaVisibleBase().filter(record => record.fecha >= today && record.estatus !== 'Suspendida').slice(0, 20);
             const impactClass = { 'Crítico': 'bg-rose-500/20 text-rose-300', Alto: 'bg-amber-500/20 text-amber-300' };
-            const statusClass = { Programada: 'bg-sky-500/20 text-sky-300', 'En curso': 'bg-emerald-500/20 text-emerald-300', Realizada: 'bg-slate-500/30 text-slate-300', Suspendida: 'bg-rose-500/10 text-rose-300 line-through' };
-            listEl.innerHTML = items.map(record => {
+            const slide = record => {
                 const date = agendaDate(record.fecha);
                 const isToday = record.fecha === today;
-                const dim = record.fecha < today || record.estatus === 'Suspendida' ? 'opacity-70' : '';
-                const meta = [record.hora, record.lugar, record.responsable ? `Responsable: ${record.responsable}` : ''].filter(Boolean).map(escapeHtml).join(' · ');
-                return `<article class="flex gap-3 bg-slate-900 border ${isToday ? 'border-amber-500/70' : 'border-slate-700/60'} rounded-xl p-3 ${dim}">
-                    <div class="w-14 shrink-0 rounded-lg bg-slate-800 border border-slate-700 text-center py-2">
-                        <p class="text-[10px] font-semibold text-amber-300">${AGENDA_MONTHS[date.getMonth()]}</p>
-                        <p class="text-xl font-bold text-white leading-none">${String(date.getDate()).padStart(2, '0')}</p>
-                        <p class="text-[10px] text-slate-400">${AGENDA_WEEKDAYS[date.getDay()]}</p>
+                const meta = [record.hora, record.lugar].filter(Boolean).map(escapeHtml).join(' · ');
+                return `<a href="agenda.html" target="_blank" rel="noopener" class="agenda-slide mr-3 w-72 shrink-0 flex gap-2.5 rounded-lg bg-slate-900 border ${isToday ? 'border-amber-500/70' : 'border-slate-700'} p-2.5 hover:border-amber-400 transition">
+                    <div class="w-11 shrink-0 rounded-md bg-slate-800 border border-slate-700 text-center py-1">
+                        <p class="text-[9px] font-semibold text-amber-300">${AGENDA_MONTHS[date.getMonth()]}</p>
+                        <p class="text-lg font-bold text-white leading-none">${String(date.getDate()).padStart(2, '0')}</p>
+                        <p class="text-[9px] text-slate-400">${AGENDA_WEEKDAYS[date.getDay()]}</p>
                     </div>
                     <div class="min-w-0 flex-1">
-                        <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
-                            ${isToday ? '<span class="px-2 py-0.5 rounded bg-amber-500 text-slate-900 font-bold">HOY</span>' : ''}
-                            <span class="px-2 py-0.5 rounded ${impactClass[record.impacto] || impactClass.Alto}">Impacto ${escapeHtml(record.impacto)}</span>
-                            <span class="px-2 py-0.5 rounded ${statusClass[record.estatus] || statusClass.Programada}">${escapeHtml(record.estatus)}</span>
-                            ${record.tipo ? `<span class="px-2 py-0.5 rounded bg-slate-700 text-slate-200">${escapeHtml(record.tipo)}</span>` : ''}
-                            <span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300">${escapeHtml(AGENDA_STATE_LABEL[record.estado] || record.estado)}</span>
+                        <div class="flex flex-wrap items-center gap-1 text-[9px]">
+                            ${isToday ? '<span class="px-1.5 py-0.5 rounded bg-amber-500 text-slate-900 font-bold">HOY</span>' : ''}
+                            <span class="px-1.5 py-0.5 rounded ${impactClass[record.impacto] || impactClass.Alto}">${escapeHtml(record.impacto)}</span>
+                            <span class="px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300">${escapeHtml(AGENDA_STATE_LABEL[record.estado] || record.estado)}</span>
                         </div>
-                        <h4 class="text-sm font-semibold text-white mt-1 break-words">${escapeHtml(record.actividad)}</h4>
-                        ${meta ? `<p class="text-xs text-slate-400 mt-0.5 break-words">${meta}</p>` : ''}
-                        ${record.descripcion ? `<p class="text-xs text-slate-300 mt-1 break-words">${escapeHtml(record.descripcion)}</p>` : ''}
+                        <p class="text-xs font-semibold text-white mt-1 line-clamp-2 break-words">${escapeHtml(record.actividad)}</p>
+                        ${meta ? `<p class="text-[10px] text-slate-400 mt-0.5 truncate">${meta}</p>` : ''}
                     </div>
-                </article>`;
-            }).join('');
+                </a>`;
+            };
+            if (!upcoming.length) {
+                slider.classList.add('static');
+                track.innerHTML = '<div class="agenda-slide shrink-0 px-3 py-3 text-xs text-slate-300">No hay actividades próximas programadas. <a href="agenda.html" target="_blank" rel="noopener" class="text-amber-300 underline">Ver la agenda completa</a></div>';
+                return;
+            }
+            const once = upcoming.map(slide).join('');
+            const animate = upcoming.length > 2;
+            slider.classList.toggle('static', !animate);
+            // la copia duplicada permite que el desplazamiento no tenga saltos; se oculta a lectores de pantalla
+            track.innerHTML = animate ? once + once.replace(/<a /g, '<a aria-hidden="true" tabindex="-1" ') : once;
+            track.style.setProperty('--agenda-duration', `${Math.max(40, upcoming.length * 9)}s`);
         }
 
         function setAgendaMasterStatus(text, kind) {
@@ -2463,7 +2477,7 @@
 
         function initAgenda() {
             loadAgendaLocal();
-            ['agendaRange', 'agendaStatus', 'stateSelect', 'monthSelect'].forEach(id => {
+            ['stateSelect'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) element.addEventListener('change', renderAgenda);
             });
@@ -2472,6 +2486,13 @@
                 const remove = event.target.closest('[data-agenda-delete]');
                 if (edit) editAgendaActivity(edit.getAttribute('data-agenda-edit'));
                 if (remove) deleteAgendaActivity(remove.getAttribute('data-agenda-delete'));
+            });
+            const toggle = document.getElementById('agendaToggle');
+            toggle.addEventListener('click', () => {
+                const paused = document.querySelector('#agendaSlider .agenda-slider').classList.toggle('paused');
+                toggle.setAttribute('aria-pressed', String(paused));
+                toggle.setAttribute('aria-label', paused ? 'Reanudar el desplazamiento' : 'Pausar el desplazamiento');
+                toggle.innerHTML = `<i class="fa-solid ${paused ? 'fa-play' : 'fa-pause'}"></i>`;
             });
             resetAgendaForm();
             renderAgenda();
@@ -3178,8 +3199,8 @@
 
         // ---------- Paginación de 7 en 7 (prevención, operativos y registros guardados) ----------
         const SUPERVISION_PAGE_SIZE = 7;
-        const supervisionPages = { prevencion: 1, operativos: 1, saved: 1 };
-        const supervisionPageContext = { prevencion: '', operativos: '', saved: '' };
+        const supervisionPages = { prevencion: 1, operativos: 1, actividades: 1, saved: 1 };
+        const supervisionPageContext = { prevencion: '', operativos: '', actividades: '', saved: '' };
 
         function paginateRows(key, rows, contextSignature) {
             if (supervisionPageContext[key] !== contextSignature) { supervisionPageContext[key] = contextSignature; supervisionPages[key] = 1; }
@@ -3218,12 +3239,15 @@
             const monthData = dbReports[selectedMonth] || dbReports['2026-10'];
             const allPrevRows = Array.isArray(monthData.prevencion) ? monthData.prevencion : [];
             const allOpRows = Array.isArray(monthData.operativos) ? monthData.operativos : [];
-            const selectedDate = refreshSupervisionDateFilter(allPrevRows, allOpRows);
+            const allActRows = Array.isArray(monthData.actividades) ? monthData.actividades : [];
+            const selectedDate = refreshSupervisionDateFilter(allPrevRows, [...allOpRows, ...allActRows]);
             const prevRows = filterSupervisionRowsByDate(allPrevRows, selectedDate);
             const opRows = filterSupervisionRowsByDate(allOpRows, selectedDate);
+            const actRows = filterSupervisionRowsByDate(allActRows, selectedDate);
             const pageContext = `${selectedMonth}|${selectedDate}|${selectedState}`;
             const prevPage = paginateRows('prevencion', prevRows, pageContext);
             const opPage = paginateRows('operativos', opRows, pageContext);
+            const actPage = paginateRows('actividades', actRows, pageContext);
             const stateMeta = getStateFilterMeta();
             const selectedMeta = selectedState !== 'ALL' ? stateMeta[selectedState] : null;
             const getDateLabel = (row, values) => {
@@ -3307,8 +3331,45 @@
                 `;
             });
 
+            const actHeader = document.getElementById('actividadesTableHeader');
+            actHeader.innerHTML = selectedMeta
+                ? `<th class="p-2">Día</th><th class="p-2">Fecha de supervisión</th><th class="p-2">${selectedMeta.label}</th>`
+                : `<th class="p-2">Día</th><th class="p-2">Fecha de supervisión</th><th class="p-2">Apure</th><th class="p-2">Barinas</th><th class="p-2">Cojedes</th><th class="p-2">Guárico</th><th class="p-2">Portuguesa</th>`;
+
+            const actBody = document.getElementById('actividadesTableBody');
+            actBody.innerHTML = '';
+            if (!actRows.length) {
+                actBody.innerHTML = `<tr><td class="p-2 text-center text-slate-400" colspan="${selectedMeta ? 3 : 7}">—</td></tr>`;
+            }
+            actPage.items.forEach(row => {
+                const values = selectedMeta
+                    ? [Number(row[selectedMeta.key] || 0)]
+                    : [
+                        Number(row.apure || 0),
+                        Number(row.barinas || 0),
+                        Number(row.cojedes || 0),
+                        Number(row.guarico || 0),
+                        Number(row.portuguesa || 0)
+                    ];
+
+                const hasData = values.some(value => value > 0);
+                const dayLabel = hasData ? row.dia || '—' : '—';
+                const dateLabel = hasData ? getDateLabel(row, values) : '—';
+                const displayValues = values.map(value => value > 0 ? value : '—');
+                const cells = selectedMeta
+                    ? `<td class="p-2 font-medium text-slate-200">${escapeHtml(dayLabel)}</td><td class="p-2 text-center">${escapeHtml(dateLabel)}</td><td class="p-2 text-center">${displayValues[0]}</td>`
+                    : `<td class="p-2 font-medium text-slate-200">${escapeHtml(dayLabel)}</td><td class="p-2 text-center">${escapeHtml(dateLabel)}</td><td class="p-2 text-center">${displayValues[0]}</td><td class="p-2 text-center">${displayValues[1]}</td><td class="p-2 text-center">${displayValues[2]}</td><td class="p-2 text-center">${displayValues[3]}</td><td class="p-2 text-center">${displayValues[4]}</td>`;
+
+                actBody.innerHTML += `
+                    <tr class="border-b border-slate-800">
+                        ${cells}
+                    </tr>
+                `;
+            });
+
             renderPager('prevencionPager', 'prevencion', prevPage, 'fechas');
             renderPager('operativosPager', 'operativos', opPage, 'fechas');
+            renderPager('actividadesPager', 'actividades', actPage, 'fechas');
             renderSupervisionCharts();
         }
 
@@ -3319,6 +3380,7 @@
             const selectedDate = document.getElementById('supervisionDateFilter').value;
             const prevRows = filterSupervisionRowsByDate(Array.isArray(monthData.prevencion) ? monthData.prevencion : [], selectedDate);
             const opRows = filterSupervisionRowsByDate(Array.isArray(monthData.operativos) ? monthData.operativos : [], selectedDate);
+            const actRows = filterSupervisionRowsByDate(Array.isArray(monthData.actividades) ? monthData.actividades : [], selectedDate);
             const stateMeta = getStateFilterMeta();
             const states = ['Apure', 'Barinas', 'Cojedes', 'Guárico', 'Portuguesa'];
             const selectedMeta = selectedState !== 'ALL' ? stateMeta[selectedState] : null;
@@ -3343,6 +3405,10 @@
                     opRows.reduce((a, b) => a + Number(b.portuguesa || 0), 0),
                 ];
 
+            const actTotals = selectedMeta
+                ? [actRows.reduce((a, b) => a + Number(b[selectedMeta.key] || 0), 0)]
+                : ['apure', 'barinas', 'cojedes', 'guarico', 'portuguesa'].map(key => actRows.reduce((a, b) => a + Number(b[key] || 0), 0));
+
             const prevLabels = selectedMeta ? [selectedMeta.label] : states;
             const opLabels = selectedMeta ? [selectedMeta.label] : states;
 
@@ -3359,6 +3425,14 @@
             operativosChartInstance = new Chart(ctxOp, {
                 type: 'bar',
                 data: { labels: opLabels, datasets: [{ label: 'Operativos de Seguridad', data: opTotals, backgroundColor: '#3b82f6', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } } }
+            });
+
+            const ctxAct = document.getElementById('actividadesChart').getContext('2d');
+            if (actividadesChartInstance) actividadesChartInstance.destroy();
+            actividadesChartInstance = new Chart(ctxAct, {
+                type: 'bar',
+                data: { labels: opLabels, datasets: [{ label: 'Actividades', data: actTotals, backgroundColor: '#f59e0b', borderRadius: 4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } } }
             });
         }
@@ -3561,7 +3635,11 @@
                 { value: 'Sábado', day: 6 },
                 { value: 'Domingo', day: 0 }
             ];
-            return type === 'prevencion' ? prevDays : opDays;
+            const allDays = [
+                { value: 'Lunes', day: 1 }, { value: 'Martes', day: 2 }, { value: 'Miércoles', day: 3 }, { value: 'Jueves', day: 4 },
+                { value: 'Viernes', day: 5 }, { value: 'Sábado', day: 6 }, { value: 'Domingo', day: 0 }
+            ];
+            return type === 'prevencion' ? prevDays : (type === 'actividades' ? allDays : opDays);
         }
 
         function updateWeeklyDayOptions() {
@@ -3591,6 +3669,9 @@
             document.getElementById('weeklyPortuguesaInput').value = 0;
         }
 
+        const WEEKLY_TYPE_LABEL = { prevencion: 'Prevención Integral', operativos: 'Operativos de Seguridad', actividades: 'Actividades' };
+        const WEEKLY_TYPES = ['prevencion', 'operativos', 'actividades'];
+
         function saveWeeklySupervisorData(event) {
             event.preventDefault();
 
@@ -3613,7 +3694,7 @@
 
             const allowedDays = getWeeklyDayOptions(type).map(item => item.value);
             if (!allowedDays.includes(dayName)) {
-                alert(`Para ${type === 'prevencion' ? 'Prevención Integral' : 'Operativos de Seguridad'} el día permitido debe ser ${allowedDays.join(', ')}.`);
+                alert(`Para ${WEEKLY_TYPE_LABEL[type] || type} el día permitido debe ser ${allowedDays.join(', ')}.`);
                 return;
             }
 
@@ -3639,7 +3720,7 @@
                 return;
             }
 
-            const storageKey = type === 'prevencion' ? 'prevencion' : 'operativos';
+            const storageKey = WEEKLY_TYPES.includes(type) ? type : 'operativos';
             const existingRows = Array.isArray(monthData[storageKey]) ? monthData[storageKey] : [];
             const existingIndex = existingRows.findIndex(existing => String(existing.fecha || '').toLowerCase() === dateValue.toLowerCase());
 
@@ -3656,15 +3737,16 @@
             document.getElementById('syncMonthInput').value = monthKey;
             updateDashboard();
             resetWeeklySupervisorForm();
-            alert(`Se guardó la supervisión de ${type === 'prevencion' ? 'Prevención Integral' : 'Operativos de Seguridad'} para ${dayName} (${dateValue}).`);
+            alert(`Se guardó la supervisión de ${WEEKLY_TYPE_LABEL[type] || type} para ${dayName} (${dateValue}).`);
         }
 
         function renderWeeklySavedRecords() {
             const monthKey = monthKeyFromInput(document.getElementById('weeklyMonthInput').value || document.getElementById('monthSelect').value) || '2026-10';
-            const monthData = dbReports[monthKey] || { prevencion: [], operativos: [] };
+            const monthData = dbReports[monthKey] || { prevencion: [], operativos: [], actividades: [] };
             const rows = [
                 ...(Array.isArray(monthData.prevencion) ? monthData.prevencion.map(item => ({ ...item, type: 'prevencion' })) : []),
-                ...(Array.isArray(monthData.operativos) ? monthData.operativos.map(item => ({ ...item, type: 'operativos' })) : [])
+                ...(Array.isArray(monthData.operativos) ? monthData.operativos.map(item => ({ ...item, type: 'operativos' })) : []),
+                ...(Array.isArray(monthData.actividades) ? monthData.actividades.map(item => ({ ...item, type: 'actividades' })) : [])
             ].sort((a, b) => (a.fecha || '').localeCompare(b.fecha || '') || a.type.localeCompare(b.type));
 
             const tbody = document.getElementById('weeklySavedRecordsBody');
@@ -3679,7 +3761,7 @@
             const savedPage = paginateRows('saved', rows, monthKey);
             renderPager('weeklySavedPager', 'saved', savedPage, 'registros');
             savedPage.items.forEach(record => {
-                const type = record.type === 'prevencion' ? 'Prevención' : 'Operativo';
+                const type = ({ prevencion: 'Prevención', operativos: 'Operativo', actividades: 'Actividad' })[record.type] || 'Operativo';
                 tbody.innerHTML += `
                     <tr class="border-b border-slate-800">
                         <td class="p-2 font-medium text-slate-200">${type}</td>
@@ -3705,7 +3787,7 @@
                     const type = button.dataset.weekEdit;
                     const dateValue = button.dataset.weekDate;
                     const targetMonth = monthKey;
-                    const targetType = type === 'prevencion' ? 'prevencion' : 'operativos';
+                    const targetType = WEEKLY_TYPES.includes(type) ? type : 'operativos';
                     const record = (dbReports[targetMonth]?.[targetType] || []).find(item => String(item.fecha || '').toLowerCase() === String(dateValue || '').toLowerCase());
                     if (!record) return;
                     document.getElementById('weeklyMonthInput').value = targetMonth;
@@ -3727,7 +3809,7 @@
                     const type = button.dataset.weekDelete;
                     const dateValue = button.dataset.weekDate;
                     const targetMonth = monthKey;
-                    const targetType = type === 'prevencion' ? 'prevencion' : 'operativos';
+                    const targetType = WEEKLY_TYPES.includes(type) ? type : 'operativos';
                     const records = dbReports[targetMonth]?.[targetType] || [];
                     const filtered = records.filter(item => String(item.fecha || '').toLowerCase() !== String(dateValue || '').toLowerCase());
                     dbReports[targetMonth] = dbReports[targetMonth] || {};
